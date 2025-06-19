@@ -14,17 +14,6 @@ export const ENDPOINTS = {
     VERIFY_TOKEN: "/auth/verify-token",
   },
 
-  // Merchants (Tenants/Outlets)
-  MERCHANTS: {
-    LIST: "/merchants",
-    CREATE: "/merchants",
-    GET: (id: string) => `/merchants/${id}`,
-    UPDATE: (id: string) => `/merchants/${id}`,
-    DELETE: (id: string) => `/merchants/${id}`,
-    UPDATE_STATUS: (id: string) => `/merchants/${id}/status`,
-    ANALYTICS: (id: string) => `/merchants/${id}/analytics`,
-  },
-
   // Dashboard (these endpoints may need to be added to backend)
   DASHBOARD: {
     STATS: "/dashboard/stats",
@@ -107,11 +96,6 @@ export const ENDPOINTS = {
 export const QUERY_KEYS = {
   // Authentication
   AUTH_USER: ["auth", "user"] as const,
-
-  // Merchants (Tenants)
-  MERCHANTS: ["merchants"] as const,
-  MERCHANT: (id: string) => ["merchants", id] as const,
-  MERCHANT_ANALYTICS: (id: string) => ["merchants", id, "analytics"] as const,
 
   // Users
   USERS: ["users"] as const,
