@@ -1,6 +1,18 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 
+// Standardized stale time configurations
+export const STALE_TIME = {
+  // Short-lived data that changes frequently
+  SHORT: 1 * 60 * 1000, // 1 minute
+  // Medium-lived data that changes occasionally
+  MEDIUM: 5 * 60 * 1000, // 5 minutes
+  // Long-lived data that rarely changes
+  LONG: 10 * 60 * 1000, // 10 minutes
+  // Very long-lived data that almost never changes
+  VERY_LONG: 30 * 60 * 1000, // 30 minutes
+} as const;
+
 export function QueryProvider({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
     () =>
@@ -8,7 +20,7 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
         defaultOptions: {
           queries: {
             // Time before data is considered stale
-            staleTime: 60 * 1000, // 1 minute
+            staleTime: STALE_TIME.SHORT, // 1 minute
             // Time before inactive queries are garbage collected
             gcTime: 10 * 60 * 1000, // 10 minutes (previously cacheTime)
             // Retry failed requests

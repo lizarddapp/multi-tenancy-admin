@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { authService, authUtils } from "../api/services/auth";
 import { QUERY_KEYS } from "../api/endpoints";
+import { STALE_TIME } from "../providers/QueryProvider";
 import type { LoginFormData } from "~/types/dashboard";
 
 // Login mutation
@@ -79,7 +80,6 @@ export const useCurrentUser = () => {
     queryFn: authService.getProfile,
     enabled: !!authUtils.getToken(), // Enable when token exists
     retry: false,
-    staleTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: false,
   });
 };
@@ -120,7 +120,6 @@ export const useVerifyToken = () => {
     queryFn: authService.verifyToken,
     enabled: authUtils.isAuthenticated(),
     retry: false,
-    staleTime: 10 * 60 * 1000, // 10 minutes
   });
 };
 

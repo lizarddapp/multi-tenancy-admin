@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { rolesService } from "../api/services/roles";
 import { QUERY_KEYS } from "../api/endpoints";
+import { STALE_TIME } from "../providers/QueryProvider";
 import type {
   CreateRoleRequest,
   UpdateRoleRequest,
@@ -17,7 +18,6 @@ export const useRoles = (params?: {
   return useQuery({
     queryKey: [...QUERY_KEYS.ROLES, params],
     queryFn: () => rolesService.list(params),
-    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };
 
@@ -27,7 +27,6 @@ export const useRole = (id: number) => {
     queryKey: QUERY_KEYS.ROLE(id),
     queryFn: () => rolesService.get(id),
     enabled: !!id,
-    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };
 
@@ -40,7 +39,6 @@ export const usePermissions = (params?: {
   return useQuery({
     queryKey: [...QUERY_KEYS.PERMISSIONS, params],
     queryFn: () => rolesService.getPermissions(params),
-    staleTime: 10 * 60 * 1000, // 10 minutes - permissions change less frequently
   });
 };
 

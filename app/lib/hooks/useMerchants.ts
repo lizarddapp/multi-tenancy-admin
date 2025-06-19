@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { merchantsService } from "../api/services/merchants";
 import { QUERY_KEYS } from "../api/endpoints";
+import { STALE_TIME } from "../providers/QueryProvider";
 import type {
   MerchantsListParams,
   CreateMerchantRequest,
@@ -13,7 +14,6 @@ export const useMerchants = (params?: MerchantsListParams) => {
   return useQuery({
     queryKey: [...QUERY_KEYS.MERCHANTS, params],
     queryFn: () => merchantsService.getMerchants(params),
-    staleTime: 2 * 60 * 1000, // 2 minutes
   });
 };
 
@@ -23,7 +23,7 @@ export const useMerchant = (id: string) => {
     queryKey: QUERY_KEYS.MERCHANT(id),
     queryFn: () => merchantsService.getMerchant(id),
     enabled: !!id,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    // 5 minutes
   });
 };
 
@@ -106,7 +106,6 @@ export const useMerchantAnalytics = (id: string) => {
     queryKey: QUERY_KEYS.MERCHANT_ANALYTICS(id),
     queryFn: () => merchantsService.getMerchantAnalytics(id),
     enabled: !!id,
-    staleTime: 5 * 60 * 1000, // 5 minutes
     refetchInterval: 10 * 60 * 1000, // Refetch every 10 minutes
   });
 };
