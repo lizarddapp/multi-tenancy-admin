@@ -210,17 +210,14 @@ export default function Dashboard() {
           <CardHeader>
             <CardTitle>Recent Tenants</CardTitle>
             <CardDescription>
-              You have {recentTenants.length} tenants in your organization.
+              You have {recentTenants.length} tenants registered this month.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-8">
               {recentTenants.map((tenant, index) => (
                 <div key={index} className="flex items-center">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted">
-                    <Building className="h-4 w-4" />
-                  </div>
-                  <div className="ml-4 space-y-1 flex-1">
+                  <div className="ml-4 space-y-1">
                     <p className="text-sm font-medium leading-none">
                       {tenant.name}
                     </p>
@@ -228,19 +225,14 @@ export default function Dashboard() {
                       {tenant.email}
                     </p>
                   </div>
-                  <div className="flex items-center space-x-2">
+                  <div className="ml-auto flex items-center space-x-2">
+                    {getStatusBadge(tenant.status)}
+                    {getPlanBadge(tenant.plan)}
                     <div className="text-right">
-                      <p className="text-sm font-medium">
+                      <div className="text-sm font-medium">
                         {tenant.users} users
-                      </p>
-                      <div className="flex items-center space-x-1">
-                        {getStatusBadge(tenant.status)}
-                        {getPlanBadge(tenant.plan)}
                       </div>
                     </div>
-                    <Button variant="ghost" size="icon">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
                   </div>
                 </div>
               ))}
@@ -251,22 +243,23 @@ export default function Dashboard() {
         <Card className="col-span-3">
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>
-              Latest activities across your tenants.
-            </CardDescription>
+            <CardDescription>Latest system activities</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-8">
               {recentActivity.map((activity, index) => (
                 <div key={index} className="flex items-center">
-                  <div className="flex h-2 w-2 rounded-full bg-sky-500" />
+                  <Activity className="mr-2 h-4 w-4 text-muted-foreground" />
                   <div className="ml-4 space-y-1">
                     <p className="text-sm font-medium leading-none">
                       {activity.action}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {activity.tenant} • {activity.time}
+                      {activity.tenant}
                     </p>
+                  </div>
+                  <div className="ml-auto text-sm text-muted-foreground">
+                    {activity.time}
                   </div>
                 </div>
               ))}
