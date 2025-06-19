@@ -66,3 +66,52 @@ export enum UserStatus {
   INACTIVE = "inactive",
   SUSPENDED = "suspended",
 }
+
+// Role and Permission types
+export interface Role {
+  id: number;
+  name: string;
+  displayName: string;
+  description: string | null;
+  isSystem: boolean;
+  createdAt: string;
+  updatedAt: string;
+  permissions?: Permission[];
+}
+
+export interface Permission {
+  id: number;
+  name: string;
+  displayName: string;
+  description: string | null;
+  resource: string;
+  action: string;
+  isSystem: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateRoleRequest {
+  name: string;
+  displayName: string;
+  description?: string;
+  permissionIds?: number[];
+}
+
+export interface UpdateRoleRequest {
+  name?: string;
+  displayName?: string;
+  description?: string;
+  permissionIds?: number[];
+}
+
+export interface AssignPermissionsRequest {
+  permissionIds: number[];
+}
+
+// Permission grouping for UI
+export interface PermissionGroup {
+  resource: string;
+  displayName: string;
+  permissions: Permission[];
+}

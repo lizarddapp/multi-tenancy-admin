@@ -90,6 +90,17 @@ export const ENDPOINTS = {
     DOWNLOAD: (id: string) => `/reports/${id}/download`,
     LIST: "/reports",
   },
+
+  // Roles and Permissions
+  ROLES: {
+    LIST: "/roles",
+    CREATE: "/roles",
+    GET: (id: number) => `/roles/${id}`,
+    UPDATE: (id: number) => `/roles/${id}`,
+    DELETE: (id: number) => `/roles/${id}`,
+    ASSIGN_PERMISSIONS: (id: number) => `/roles/${id}/permissions`,
+    PERMISSIONS: "/roles/permissions",
+  },
 } as const;
 
 // Query Keys for React Query
@@ -129,4 +140,10 @@ export const QUERY_KEYS = {
 
   // Reports
   REPORTS: ["reports"] as const,
+
+  // Roles and Permissions
+  ROLES: ["roles"] as const,
+  ROLE: (id: number) => ["roles", id] as const,
+  PERMISSIONS: ["permissions"] as const,
+  ROLE_PERMISSIONS: (id: number) => ["roles", id, "permissions"] as const,
 } as const;
