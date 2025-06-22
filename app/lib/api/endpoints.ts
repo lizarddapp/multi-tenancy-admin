@@ -12,6 +12,8 @@ export const ENDPOINTS = {
     CHANGE_PASSWORD: "/auth/change-password",
     LOGOUT: "/auth/logout",
     VERIFY_TOKEN: "/auth/verify-token",
+    AVAILABLE_TENANTS: "/auth/tenants",
+    SWITCH_TENANT: "/auth/switch-tenant",
   },
 
   // Dashboard (these endpoints may need to be added to backend)
@@ -107,6 +109,7 @@ export const ENDPOINTS = {
 export const QUERY_KEYS = {
   // Authentication
   AUTH_USER: ["auth", "user"] as const,
+  AUTH_AVAILABLE_TENANTS: ["auth", "available-tenants"] as const,
 
   // Users
   USERS: ["users"] as const,

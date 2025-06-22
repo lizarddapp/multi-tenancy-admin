@@ -1,8 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { authService, authUtils } from "../api/services/auth";
 import { QUERY_KEYS } from "../api/endpoints";
-import { STALE_TIME } from "../providers/QueryProvider";
-import type { LoginFormData } from "~/types/dashboard";
 
 // Login mutation
 export const useLogin = () => {
@@ -62,13 +60,13 @@ export const useLogout = () => {
       queryClient.clear();
 
       // Redirect to login
-      window.location.href = "/login";
+      window.location.href = "/auth/login";
     },
-    onError: (error) => {
+    onError: () => {
       // Even if logout fails on server, clear client-side data
       authUtils.clearToken();
       queryClient.clear();
-      window.location.href = "/login";
+      window.location.href = "/auth/login";
     },
   });
 };
@@ -120,6 +118,33 @@ export const useVerifyToken = () => {
     queryFn: authService.verifyToken,
     enabled: authUtils.isAuthenticated(),
     retry: false,
+  });
+};
+
+// Get available tenants query
+export const useAvailableTenants = () => {
+  return useQuery({
+    queryKey: QUERY_KEYS.AUTH_AVAILABLE_TENANTS,
+    queryFn: authService.getAvailableTenants,
+    enabled: !!authUtils.getToken(), // Enable when token exists
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Switch tenant mutation
+export const useSwitchTenant = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: authService.switchTenant,
+    onSuccess: () => {
+      // Invalidate auth queries to refresh user data
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.AUTH_USER });
+    },
+    onError: (error) => {
+      console.error("Switch tenant failed:", error);
+    },
   });
 };
 

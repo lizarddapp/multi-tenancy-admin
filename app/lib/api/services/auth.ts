@@ -1,7 +1,12 @@
 import api from "../client";
 import { ENDPOINTS } from "../endpoints";
 import type { ApiResponse } from "../client";
-import type { LoginFormData, AuthUser, UserRole } from "~/types/dashboard";
+import type {
+  LoginFormData,
+  AuthUser,
+  UserRole,
+  Tenant,
+} from "~/types/dashboard";
 
 export interface LoginResponse {
   user: AuthUser;
@@ -28,6 +33,19 @@ export interface UpdateProfileRequest {
 export interface ChangePasswordRequest {
   currentPassword: string;
   newPassword: string;
+}
+
+export interface AvailableTenantsResponse {
+  tenants: Array<{
+    id: number;
+    name: string;
+    slug: string;
+    status: string;
+  }>;
+}
+
+export interface SwitchTenantRequest {
+  tenantId: number;
 }
 
 export const authService = {
@@ -75,6 +93,20 @@ export const authService = {
   // Verify token
   verifyToken: async (): Promise<ApiResponse<{ user: AuthUser }>> => {
     return api.get<{ user: AuthUser }>(ENDPOINTS.AUTH.VERIFY_TOKEN);
+  },
+
+  // Get available tenants for user
+  getAvailableTenants: async (): Promise<
+    ApiResponse<AvailableTenantsResponse>
+  > => {
+    return api.get<AvailableTenantsResponse>(ENDPOINTS.AUTH.AVAILABLE_TENANTS);
+  },
+
+  // Switch tenant context
+  switchTenant: async (
+    data: SwitchTenantRequest
+  ): Promise<ApiResponse<{ user: AuthUser }>> => {
+    return api.post<{ user: AuthUser }>(ENDPOINTS.AUTH.SWITCH_TENANT, data);
   },
 };
 

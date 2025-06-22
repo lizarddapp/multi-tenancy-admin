@@ -9,10 +9,12 @@ import {
   useLocation,
 } from "react-router";
 
-import { use, useEffect } from "react";
+import { useEffect, useState } from "react";
 import type { Route } from "./+types/root";
 import { QueryProvider } from "./lib/providers/QueryProvider";
 import { SessionProvider, useSession } from "./lib/providers/SessionProvider";
+import { useAvailableTenants } from "./lib/hooks/useAuth";
+import { TenantSelectionDialog } from "./components/tenant-selection-dialog";
 import { Toaster } from "sonner";
 import "./app.css";
 
@@ -49,20 +51,56 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 // Component to handle authentication checks
 function AuthenticatedApp() {
-  const { isAuthenticated, isLoading, user } = useSession();
+  const { isAuthenticated, isLoading } = useSession();
   const navigate = useNavigate();
   const location = useLocation();
+  const [showTenantDialog, setShowTenantDialog] = useState(false);
+
+  const { data: tenantsResponse } = useAvailableTenants();
 
   useEffect(() => {
     // Don't redirect if we're already on the login page
-    if (!isLoading && !isAuthenticated && location.pathname !== "/login") {
-      navigate("/login");
+    if (!isLoading && !isAuthenticated && location.pathname !== "/auth/login") {
+      navigate("/auth/login");
     }
     // if is authenticated and path still in / , navigate to the first tenant
     else if (!isLoading && isAuthenticated && location.pathname === "/") {
-      navigate(`/${user?.tenants?.[0].slug}`);
+      // Check if user has a saved tenant slug in localStorage
+      const savedTenantSlug = localStorage.getItem("selected_tenant_slug");
+
+      if (savedTenantSlug) {
+        // Navigate to the saved tenant dashboard
+        navigate(`/${savedTenantSlug}`);
+      } else {
+        // Check if user has available tenants
+        const tenants = tenantsResponse?.data?.tenants || [];
+
+        if (tenants.length === 0) {
+          // User has no tenants, show dialog to select one
+          setShowTenantDialog(true);
+        } else if (tenants.length === 1) {
+          // User has only one tenant, automatically select it
+          const tenant = tenants[0];
+          localStorage.setItem("selected_tenant_slug", tenant.slug);
+          navigate(`/${tenant.slug}`);
+        } else {
+          // User has multiple tenants, show dialog to select one
+          setShowTenantDialog(true);
+        }
+      }
     }
-  }, [isAuthenticated, isLoading, navigate, location.pathname]);
+  }, [
+    isAuthenticated,
+    isLoading,
+    navigate,
+    location.pathname,
+    tenantsResponse,
+  ]);
+
+  // Handle tenant selection from dialog
+  const handleTenantSelected = (tenantSlug: string) => {
+    navigate(`/${tenantSlug}`);
+  };
 
   // Show loading spinner while checking authentication
   if (isLoading) {
@@ -74,7 +112,7 @@ function AuthenticatedApp() {
   }
 
   // Allow login page to render even when not authenticated
-  if (!isAuthenticated && location.pathname === "/login") {
+  if (!isAuthenticated && location.pathname === "/auth/login") {
     return <Outlet />;
   }
 
@@ -83,7 +121,16 @@ function AuthenticatedApp() {
     return null;
   }
 
-  return <Outlet />;
+  return (
+    <>
+      <Outlet />
+      <TenantSelectionDialog
+        open={showTenantDialog}
+        onOpenChange={setShowTenantDialog}
+        onTenantSelected={handleTenantSelected}
+      />
+    </>
+  );
 }
 
 export default function App() {

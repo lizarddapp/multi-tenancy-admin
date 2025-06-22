@@ -62,7 +62,7 @@ export function NavUser({
       setIsLoggingOut(true);
       await logout();
       toast.success("Logged out successfully");
-      navigate("/login");
+      navigate("/auth/login");
     } catch (error) {
       console.error("Logout failed:", error);
       toast.error("Failed to logout. Please try again.");

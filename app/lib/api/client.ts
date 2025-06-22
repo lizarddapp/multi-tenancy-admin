@@ -52,7 +52,7 @@ apiClient.interceptors.response.use(
       }
 
       // Redirect to login
-      window.location.href = "/login";
+      window.location.href = "/auth/login";
     }
 
     // Handle other errors

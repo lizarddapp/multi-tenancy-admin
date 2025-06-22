@@ -5,9 +5,27 @@ const appRoutes = await flatRoutes();
 const unauthenticatedRoutes = await flatRoutes({
   rootDirectory: "./routes-unauthenticated",
 });
+const controlRoutes = await flatRoutes({
+  rootDirectory: "./routes-control",
+});
 
 export default [
-  ...unauthenticatedRoutes,
+  ...unauthenticatedRoutes.map((unauthenticatedRoute) => {
+    console.log(unauthenticatedRoute.path, unauthenticatedRoute.file);
+    return route(
+      `auth${unauthenticatedRoute.path ? `/${unauthenticatedRoute.path}` : ""}`,
+      unauthenticatedRoute.file,
+      unauthenticatedRoute.children
+    );
+  }),
+
+  ...controlRoutes.map((controlRoute) => {
+    return route(
+      `control${controlRoute.path ? `/${controlRoute.path}` : ""}`,
+      controlRoute.file,
+      controlRoute.children
+    );
+  }),
 
   layout("./layouts/tenant.tsx", [
     ...appRoutes.map((appRoute) => {
