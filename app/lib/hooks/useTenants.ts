@@ -1,0 +1,120 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { tenantsService } from "../api/services/tenants";
+import { QUERY_KEYS } from "../api/endpoints";
+import type {
+  CreateTenantRequest,
+  UpdateTenantRequest,
+  UpdateTenantStatusRequest,
+} from "~/types/dashboard";
+import { toast } from "sonner";
+
+// Get all tenants
+export const useTenants = (params?: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: string;
+}) => {
+  return useQuery({
+    queryKey: [...QUERY_KEYS.TENANTS, params],
+    queryFn: () => tenantsService.list(params),
+  });
+};
+
+// Get single tenant
+export const useTenant = (id: number) => {
+  return useQuery({
+    queryKey: QUERY_KEYS.TENANT(id),
+    queryFn: () => tenantsService.get(id),
+    enabled: !!id,
+  });
+};
+
+// Get tenant analytics
+export const useTenantAnalytics = (id: number) => {
+  return useQuery({
+    queryKey: QUERY_KEYS.TENANT_ANALYTICS(id),
+    queryFn: () => tenantsService.getAnalytics(id),
+    enabled: !!id,
+    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
+  });
+};
+
+// Create tenant mutation
+export const useCreateTenant = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: CreateTenantRequest) => tenantsService.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.TENANTS });
+      toast.success("Tenant created successfully");
+    },
+    onError: (error: any) => {
+      console.error("Create tenant failed:", error);
+      toast.error(error.response?.data?.message || "Failed to create tenant");
+    },
+  });
+};
+
+// Update tenant mutation
+export const useUpdateTenant = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: UpdateTenantRequest }) =>
+      tenantsService.update(id, data),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.TENANTS });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.TENANT(id) });
+      toast.success("Tenant updated successfully");
+    },
+    onError: (error: any) => {
+      console.error("Update tenant failed:", error);
+      toast.error(error.response?.data?.message || "Failed to update tenant");
+    },
+  });
+};
+
+// Delete tenant mutation
+export const useDeleteTenant = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => tenantsService.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.TENANTS });
+      toast.success("Tenant deleted successfully");
+    },
+    onError: (error: any) => {
+      console.error("Delete tenant failed:", error);
+      toast.error(error.response?.data?.message || "Failed to delete tenant");
+    },
+  });
+};
+
+// Update tenant status mutation
+export const useUpdateTenantStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: number;
+      data: UpdateTenantStatusRequest;
+    }) => tenantsService.updateStatus(id, data),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.TENANTS });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.TENANT(id) });
+      toast.success("Tenant status updated successfully");
+    },
+    onError: (error: any) => {
+      console.error("Update tenant status failed:", error);
+      toast.error(
+        error.response?.data?.message || "Failed to update tenant status"
+      );
+    },
+  });
+};

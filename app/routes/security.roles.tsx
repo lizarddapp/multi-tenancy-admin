@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useLoaderData } from "react-router";
 import {
   Card,
   CardContent,
@@ -40,16 +41,7 @@ import {
 import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
 import { Checkbox } from "~/components/ui/checkbox";
-import {
-  Plus,
-  Search,
-  Edit,
-  Trash2,
-  Shield,
-  Users,
-  Settings,
-  MoreHorizontal,
-} from "lucide-react";
+import { Plus, Search, Edit, Trash2, MoreHorizontal } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -62,7 +54,6 @@ import {
   useCreateRole,
   useUpdateRole,
   useDeleteRole,
-  useAssignPermissions,
 } from "~/lib/hooks/useRoles";
 import type {
   Role,

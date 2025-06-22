@@ -8,12 +8,45 @@ export interface DashboardStat {
   icon: LucideIcon;
 }
 
+// Tenant types matching backend model
+export enum TenantStatus {
+  ACTIVE = "active",
+  INACTIVE = "inactive",
+  SUSPENDED = "suspended",
+  TRIAL = "trial",
+}
+
 export interface Tenant {
+  id: number;
   name: string;
-  email: string;
-  status: "active" | "trial" | "inactive";
-  users: number;
-  plan: "Enterprise" | "Pro" | "Basic" | "Trial";
+  slug: string;
+  status: TenantStatus;
+  settings: object;
+  trialEndsAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  users?: User[]; // Optional relation
+  usersCount?: number; // For display purposes
+}
+
+export interface CreateTenantRequest {
+  name: string;
+  slug: string;
+  status?: TenantStatus;
+  settings?: object;
+  trialEndsAt?: string | null;
+}
+
+export interface UpdateTenantRequest {
+  name?: string;
+  slug?: string;
+  status?: TenantStatus;
+  settings?: object;
+  trialEndsAt?: string | null;
+}
+
+export interface UpdateTenantStatusRequest {
+  status: TenantStatus;
 }
 
 export interface Activity {
@@ -42,6 +75,19 @@ export interface LoginFormData {
   remember?: boolean;
 }
 
+export interface User {
+  id: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+  fullName: string;
+  phone?: string;
+  status: UserStatus;
+  emailVerifiedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface AuthUser {
   id: number;
   email: string;
@@ -49,9 +95,10 @@ export interface AuthUser {
   lastName: string;
   fullName: string;
   phone?: string;
-  role: UserRole;
   status: UserStatus;
-  tenantId?: number;
+  permissions?: string[]; // Array of permission names like 'tenants.read', 'users.manage'
+  roles?: Role[]; // Array of user roles with their permissions
+  tenants?: Tenant[]; // Array of tenants the user belongs to
 }
 
 export enum UserRole {

@@ -90,6 +90,17 @@ export const ENDPOINTS = {
     ASSIGN_PERMISSIONS: (id: number) => `/roles/${id}/permissions`,
     PERMISSIONS: "/roles/permissions",
   },
+
+  // Tenants
+  TENANTS: {
+    LIST: "/tenants",
+    CREATE: "/tenants",
+    GET: (id: number) => `/tenants/${id}`,
+    UPDATE: (id: number) => `/tenants/${id}`,
+    DELETE: (id: number) => `/tenants/${id}`,
+    UPDATE_STATUS: (id: number) => `/tenants/${id}/status`,
+    ANALYTICS: (id: number) => `/tenants/${id}/analytics`,
+  },
 } as const;
 
 // Query Keys for React Query
@@ -130,4 +141,14 @@ export const QUERY_KEYS = {
   ROLE: (id: number) => ["roles", id] as const,
   PERMISSIONS: ["permissions"] as const,
   ROLE_PERMISSIONS: (id: number) => ["roles", id, "permissions"] as const,
+
+  // Tenants
+  TENANTS: ["tenants"] as const,
+  TENANT: (id: number) => ["tenants", id] as const,
+  TENANT_ANALYTICS: (id: number) => ["tenants", id, "analytics"] as const,
+
+  // Merchants (for existing code compatibility)
+  MERCHANTS: ["merchants"] as const,
+  MERCHANT: (id: string) => ["merchants", id] as const,
+  MERCHANT_ANALYTICS: (id: string) => ["merchants", id, "analytics"] as const,
 } as const;

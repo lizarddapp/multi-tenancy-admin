@@ -1,7 +1,4 @@
-import { Outlet, useNavigate } from "react-router";
-import type { Route } from "../+types/root";
-import { useEffect } from "react";
-import { useSession } from "~/lib/providers/SessionProvider";
+import { Outlet } from "react-router";
 import { AppSidebar } from "~/components/app-sidebar";
 import {
   Breadcrumb,
@@ -17,6 +14,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "~/components/ui/sidebar";
+import type { Route } from "../+types/root";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -28,29 +26,21 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
+export async function clientLoader({ params }: Route.LoaderArgs) {
+  // Validate tenant parameter exists
+  if (!params.tenant) {
+    throw new Response("Tenant not found", { status: 404 });
+  }
+
+  // You can add additional tenant validation here if needed
+  // For now, we'll just pass the tenant parameter through
+  return {
+    tenant: params.tenant,
+  };
+}
+
 export default function DashboardLayout() {
-  const { isAuthenticated, isLoading } = useSession();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      navigate("/login");
-    }
-  }, [isAuthenticated, isLoading, navigate]);
-
-  // Show loading spinner while checking authentication
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-      </div>
-    );
-  }
-
-  // Don't render layout if not authenticated
-  if (!isAuthenticated) {
-    return null;
-  }
+  // const { tenant } = useLoaderData<typeof loader>();
 
   return (
     <SidebarProvider>

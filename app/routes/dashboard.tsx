@@ -1,4 +1,4 @@
-import React from "react";
+import { Link } from "react-router";
 import {
   Card,
   CardContent,
@@ -17,13 +17,12 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Plus,
-  MoreHorizontal,
 } from "lucide-react";
 import type {
   DashboardStat,
-  Tenant,
   Activity as ActivityType,
 } from "~/types/dashboard";
+import { TenantStatus } from "~/types/dashboard";
 
 // Mock data for the dashboard
 const stats: DashboardStat[] = [
@@ -57,40 +56,46 @@ const stats: DashboardStat[] = [
   },
 ];
 
-const recentTenants: Tenant[] = [
+// Mock data for display - simplified for dashboard
+const recentTenants = [
   {
+    id: 1,
     name: "Acme Corp",
     email: "admin@acme.com",
-    status: "active",
-    users: 124,
+    status: TenantStatus.ACTIVE,
+    usersCount: 125,
     plan: "Enterprise",
   },
   {
+    id: 2,
     name: "TechStart Inc",
     email: "admin@techstart.com",
-    status: "active",
-    users: 45,
+    status: TenantStatus.ACTIVE,
+    usersCount: 45,
     plan: "Pro",
   },
   {
+    id: 3,
     name: "Design Studio",
     email: "admin@designstudio.com",
-    status: "trial",
-    users: 12,
+    status: TenantStatus.TRIAL,
+    usersCount: 12,
     plan: "Trial",
   },
   {
+    id: 4,
     name: "Global Solutions",
     email: "admin@global.com",
-    status: "active",
-    users: 89,
+    status: TenantStatus.ACTIVE,
+    usersCount: 89,
     plan: "Enterprise",
   },
   {
+    id: 5,
     name: "StartupX",
     email: "admin@startupx.com",
-    status: "inactive",
-    users: 8,
+    status: TenantStatus.INACTIVE,
+    usersCount: 8,
     plan: "Basic",
   },
 ];
@@ -146,18 +151,20 @@ function StatCard({ stat }: { stat: DashboardStat }) {
   );
 }
 
-function getStatusBadge(status: string) {
+function getStatusBadge(status: TenantStatus) {
   switch (status) {
-    case "active":
+    case TenantStatus.ACTIVE:
       return (
         <Badge variant="default" className="bg-green-100 text-green-800">
           Active
         </Badge>
       );
-    case "trial":
+    case TenantStatus.TRIAL:
       return <Badge variant="secondary">Trial</Badge>;
-    case "inactive":
+    case TenantStatus.INACTIVE:
       return <Badge variant="destructive">Inactive</Badge>;
+    case TenantStatus.SUSPENDED:
+      return <Badge variant="destructive">Suspended</Badge>;
     default:
       return <Badge variant="outline">{status}</Badge>;
   }
@@ -187,14 +194,18 @@ function getPlanBadge(plan: string) {
 }
 
 export default function Dashboard() {
+  // const { tenant } = useLoaderData<typeof loader>();
+
   return (
     <div className="flex-1 space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
         <div className="flex items-center space-x-2">
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Tenant
+          <Button asChild>
+            <Link to="/tenants">
+              <Plus className="mr-2 h-4 w-4" />
+              Add Tenant
+            </Link>
           </Button>
         </div>
       </div>
@@ -230,7 +241,7 @@ export default function Dashboard() {
                     {getPlanBadge(tenant.plan)}
                     <div className="text-right">
                       <div className="text-sm font-medium">
-                        {tenant.users} users
+                        {tenant.usersCount} users
                       </div>
                     </div>
                   </div>

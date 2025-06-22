@@ -68,7 +68,7 @@ export const rolesService = {
     id: number,
     data: UpdateRoleRequest
   ): Promise<ApiResponse<{ role: Role }>> => {
-    return api.patch<{ role: Role }>(ENDPOINTS.ROLES.UPDATE(id), data);
+    return api.put<{ role: Role }>(ENDPOINTS.ROLES.UPDATE(id), data);
   },
 
   // Delete role

@@ -5,11 +5,14 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useNavigate,
+  useLocation,
 } from "react-router";
 
+import { use, useEffect } from "react";
 import type { Route } from "./+types/root";
 import { QueryProvider } from "./lib/providers/QueryProvider";
-import { SessionProvider } from "./lib/providers/SessionProvider";
+import { SessionProvider, useSession } from "./lib/providers/SessionProvider";
 import { Toaster } from "sonner";
 import "./app.css";
 
@@ -44,11 +47,50 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+// Component to handle authentication checks
+function AuthenticatedApp() {
+  const { isAuthenticated, isLoading, user } = useSession();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    // Don't redirect if we're already on the login page
+    if (!isLoading && !isAuthenticated && location.pathname !== "/login") {
+      navigate("/login");
+    }
+    // if is authenticated and path still in / , navigate to the first tenant
+    else if (!isLoading && isAuthenticated && location.pathname === "/") {
+      navigate(`/${user?.tenants?.[0].slug}`);
+    }
+  }, [isAuthenticated, isLoading, navigate, location.pathname]);
+
+  // Show loading spinner while checking authentication
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
+  // Allow login page to render even when not authenticated
+  if (!isAuthenticated && location.pathname === "/login") {
+    return <Outlet />;
+  }
+
+  // Don't render protected routes if not authenticated
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  return <Outlet />;
+}
+
 export default function App() {
   return (
     <QueryProvider>
       <SessionProvider>
-        <Outlet />
+        <AuthenticatedApp />
         <Toaster position="top-right" richColors />
       </SessionProvider>
     </QueryProvider>
