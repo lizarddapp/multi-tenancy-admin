@@ -45,7 +45,7 @@ export const rolesService = {
     if (params?.limit) searchParams.set("limit", params.limit.toString());
     if (params?.search) searchParams.set("search", params.search);
 
-    const url = `${ENDPOINTS.ROLES.LIST}${
+    const url = `${ENDPOINTS.ADMIN.ROLES.LIST}${
       searchParams.toString() ? `?${searchParams.toString()}` : ""
     }`;
     return api.get<RolesListResponse>(url);
@@ -53,14 +53,14 @@ export const rolesService = {
 
   // Get single role
   get: async (id: number): Promise<ApiResponse<{ role: Role }>> => {
-    return api.get<{ role: Role }>(ENDPOINTS.ROLES.GET(id));
+    return api.get<{ role: Role }>(ENDPOINTS.ADMIN.ROLES.GET(id));
   },
 
   // Create new role
   create: async (
     data: CreateRoleRequest
   ): Promise<ApiResponse<{ role: Role }>> => {
-    return api.post<{ role: Role }>(ENDPOINTS.ROLES.CREATE, data);
+    return api.post<{ role: Role }>(ENDPOINTS.ADMIN.ROLES.CREATE, data);
   },
 
   // Update role
@@ -68,12 +68,12 @@ export const rolesService = {
     id: number,
     data: UpdateRoleRequest
   ): Promise<ApiResponse<{ role: Role }>> => {
-    return api.put<{ role: Role }>(ENDPOINTS.ROLES.UPDATE(id), data);
+    return api.put<{ role: Role }>(ENDPOINTS.ADMIN.ROLES.UPDATE(id), data);
   },
 
   // Delete role
   delete: async (id: number): Promise<ApiResponse<null>> => {
-    return api.delete<null>(ENDPOINTS.ROLES.DELETE(id));
+    return api.delete<null>(ENDPOINTS.ADMIN.ROLES.DELETE(id));
   },
 
   // Get all permissions
@@ -87,7 +87,7 @@ export const rolesService = {
     if (params?.limit) searchParams.set("limit", params.limit.toString());
     if (params?.resource) searchParams.set("resource", params.resource);
 
-    const url = `${ENDPOINTS.ROLES.PERMISSIONS}${
+    const url = `${ENDPOINTS.ADMIN.ROLES.PERMISSIONS}${
       searchParams.toString() ? `?${searchParams.toString()}` : ""
     }`;
     return api.get<PermissionsListResponse>(url);
@@ -99,7 +99,7 @@ export const rolesService = {
     data: AssignPermissionsRequest
   ): Promise<ApiResponse<{ role: Role }>> => {
     return api.post<{ role: Role }>(
-      ENDPOINTS.ROLES.ASSIGN_PERMISSIONS(id),
+      ENDPOINTS.ADMIN.ROLES.ASSIGN_PERMISSIONS(id),
       data
     );
   },

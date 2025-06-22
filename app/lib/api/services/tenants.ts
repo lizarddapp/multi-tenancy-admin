@@ -44,7 +44,7 @@ export const tenantsService = {
     if (params?.search) searchParams.set("search", params.search);
     if (params?.status) searchParams.set("status", params.status);
 
-    const url = `${ENDPOINTS.TENANTS.LIST}${
+    const url = `${ENDPOINTS.CONTROL.TENANTS.LIST}${
       searchParams.toString() ? `?${searchParams.toString()}` : ""
     }`;
     return api.get<TenantsListResponse>(url);
@@ -52,14 +52,14 @@ export const tenantsService = {
 
   // Get single tenant
   get: async (id: number): Promise<ApiResponse<{ tenant: Tenant }>> => {
-    return api.get<{ tenant: Tenant }>(ENDPOINTS.TENANTS.GET(id));
+    return api.get<{ tenant: Tenant }>(ENDPOINTS.CONTROL.TENANTS.GET(id));
   },
 
   // Create new tenant
   create: async (
     data: CreateTenantRequest
   ): Promise<ApiResponse<{ tenant: Tenant }>> => {
-    return api.post<{ tenant: Tenant }>(ENDPOINTS.TENANTS.CREATE, data);
+    return api.post<{ tenant: Tenant }>(ENDPOINTS.CONTROL.TENANTS.CREATE, data);
   },
 
   // Update tenant
@@ -67,12 +67,15 @@ export const tenantsService = {
     id: number,
     data: UpdateTenantRequest
   ): Promise<ApiResponse<{ tenant: Tenant }>> => {
-    return api.put<{ tenant: Tenant }>(ENDPOINTS.TENANTS.UPDATE(id), data);
+    return api.put<{ tenant: Tenant }>(
+      ENDPOINTS.CONTROL.TENANTS.UPDATE(id),
+      data
+    );
   },
 
   // Delete tenant
   delete: async (id: number): Promise<ApiResponse<null>> => {
-    return api.delete<null>(ENDPOINTS.TENANTS.DELETE(id));
+    return api.delete<null>(ENDPOINTS.CONTROL.TENANTS.DELETE(id));
   },
 
   // Update tenant status
@@ -81,7 +84,7 @@ export const tenantsService = {
     data: UpdateTenantStatusRequest
   ): Promise<ApiResponse<{ tenant: Tenant }>> => {
     return api.patch<{ tenant: Tenant }>(
-      ENDPOINTS.TENANTS.UPDATE_STATUS(id),
+      ENDPOINTS.CONTROL.TENANTS.UPDATE_STATUS(id),
       data
     );
   },
@@ -90,6 +93,8 @@ export const tenantsService = {
   getAnalytics: async (
     id: number
   ): Promise<ApiResponse<TenantAnalyticsResponse>> => {
-    return api.get<TenantAnalyticsResponse>(ENDPOINTS.TENANTS.ANALYTICS(id));
+    return api.get<TenantAnalyticsResponse>(
+      ENDPOINTS.CONTROL.TENANTS.ANALYTICS(id)
+    );
   },
 };

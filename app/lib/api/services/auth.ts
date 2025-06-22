@@ -1,12 +1,7 @@
 import api from "../client";
 import { ENDPOINTS } from "../endpoints";
 import type { ApiResponse } from "../client";
-import type {
-  LoginFormData,
-  AuthUser,
-  UserRole,
-  Tenant,
-} from "~/types/dashboard";
+import type { LoginFormData, AuthUser, UserRole } from "~/types/dashboard";
 
 export interface LoginResponse {
   user: AuthUser;
@@ -53,14 +48,14 @@ export const authService = {
   register: async (
     data: RegisterRequest
   ): Promise<ApiResponse<LoginResponse>> => {
-    return api.post<LoginResponse>(ENDPOINTS.AUTH.REGISTER, data);
+    return api.post<LoginResponse>(ENDPOINTS.ADMIN.AUTH.REGISTER, data);
   },
 
   // Login user
   login: async (
     credentials: LoginFormData
   ): Promise<ApiResponse<LoginResponse>> => {
-    return api.post<LoginResponse>(ENDPOINTS.AUTH.LOGIN, {
+    return api.post<LoginResponse>(ENDPOINTS.ADMIN.AUTH.LOGIN, {
       email: credentials.email,
       password: credentials.password,
     });
@@ -68,45 +63,53 @@ export const authService = {
 
   // Logout user
   logout: async (): Promise<ApiResponse<null>> => {
-    return api.post<null>(ENDPOINTS.AUTH.LOGOUT);
+    return api.post<null>(ENDPOINTS.ADMIN.AUTH.LOGOUT);
   },
 
   // Get current user profile
   getProfile: async (): Promise<ApiResponse<{ user: AuthUser }>> => {
-    return api.get<{ user: AuthUser }>(ENDPOINTS.AUTH.PROFILE);
+    return api.get<{ user: AuthUser }>(ENDPOINTS.ADMIN.AUTH.PROFILE);
   },
 
   // Update user profile
   updateProfile: async (
     data: UpdateProfileRequest
   ): Promise<ApiResponse<{ user: AuthUser }>> => {
-    return api.post<{ user: AuthUser }>(ENDPOINTS.AUTH.UPDATE_PROFILE, data);
+    return api.post<{ user: AuthUser }>(
+      ENDPOINTS.ADMIN.AUTH.UPDATE_PROFILE,
+      data
+    );
   },
 
   // Change password
   changePassword: async (
     data: ChangePasswordRequest
   ): Promise<ApiResponse<null>> => {
-    return api.post<null>(ENDPOINTS.AUTH.CHANGE_PASSWORD, data);
+    return api.post<null>(ENDPOINTS.ADMIN.AUTH.CHANGE_PASSWORD, data);
   },
 
   // Verify token
   verifyToken: async (): Promise<ApiResponse<{ user: AuthUser }>> => {
-    return api.get<{ user: AuthUser }>(ENDPOINTS.AUTH.VERIFY_TOKEN);
+    return api.get<{ user: AuthUser }>(ENDPOINTS.ADMIN.AUTH.VERIFY_TOKEN);
   },
 
   // Get available tenants for user
   getAvailableTenants: async (): Promise<
     ApiResponse<AvailableTenantsResponse>
   > => {
-    return api.get<AvailableTenantsResponse>(ENDPOINTS.AUTH.AVAILABLE_TENANTS);
+    return api.get<AvailableTenantsResponse>(
+      ENDPOINTS.ADMIN.AUTH.AVAILABLE_TENANTS
+    );
   },
 
   // Switch tenant context
   switchTenant: async (
     data: SwitchTenantRequest
   ): Promise<ApiResponse<{ user: AuthUser }>> => {
-    return api.post<{ user: AuthUser }>(ENDPOINTS.AUTH.SWITCH_TENANT, data);
+    return api.post<{ user: AuthUser }>(
+      ENDPOINTS.ADMIN.AUTH.SWITCH_TENANT,
+      data
+    );
   },
 };
 

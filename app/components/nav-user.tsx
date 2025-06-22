@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useTenantNavigation } from "~/lib/hooks/useNavigation";
 import {
   BadgeCheck,
   Bell,
@@ -52,7 +52,7 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar();
   const { logout } = useSession();
-  const navigate = useNavigate();
+  const { navigateGlobal } = useTenantNavigation();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
@@ -62,7 +62,7 @@ export function NavUser({
       setIsLoggingOut(true);
       await logout();
       toast.success("Logged out successfully");
-      navigate("/auth/login");
+      navigateGlobal("/login");
     } catch (error) {
       console.error("Logout failed:", error);
       toast.error("Failed to logout. Please try again.");

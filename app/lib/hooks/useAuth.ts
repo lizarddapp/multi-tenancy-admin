@@ -13,7 +13,7 @@ export const useLogin = () => {
       authUtils.storeToken(response.data.accessToken);
 
       // Invalidate auth queries
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.AUTH_USER });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ADMIN.AUTH_USER });
 
       // Redirect to dashboard
       window.location.href = "/";
@@ -35,7 +35,7 @@ export const useRegister = () => {
       authUtils.storeToken(response.data.accessToken);
 
       // Invalidate auth queries
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.AUTH_USER });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ADMIN.AUTH_USER });
 
       // Redirect to dashboard
       window.location.href = "/";
@@ -74,7 +74,7 @@ export const useLogout = () => {
 // Get current user profile query
 export const useCurrentUser = () => {
   return useQuery({
-    queryKey: QUERY_KEYS.AUTH_USER,
+    queryKey: QUERY_KEYS.ADMIN.AUTH_USER,
     queryFn: authService.getProfile,
     enabled: !!authUtils.getToken(), // Enable when token exists
     retry: false,
@@ -90,7 +90,7 @@ export const useUpdateProfile = () => {
     mutationFn: authService.updateProfile,
     onSuccess: () => {
       // Invalidate auth queries to refetch updated profile
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.AUTH_USER });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ADMIN.AUTH_USER });
     },
     onError: (error) => {
       console.error("Profile update failed:", error);
@@ -124,7 +124,7 @@ export const useVerifyToken = () => {
 // Get available tenants query
 export const useAvailableTenants = () => {
   return useQuery({
-    queryKey: QUERY_KEYS.AUTH_AVAILABLE_TENANTS,
+    queryKey: QUERY_KEYS.ADMIN.AUTH_AVAILABLE_TENANTS,
     queryFn: authService.getAvailableTenants,
     enabled: !!authUtils.getToken(), // Enable when token exists
     retry: false,
@@ -140,7 +140,7 @@ export const useSwitchTenant = () => {
     mutationFn: authService.switchTenant,
     onSuccess: () => {
       // Invalidate auth queries to refresh user data
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.AUTH_USER });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ADMIN.AUTH_USER });
     },
     onError: (error) => {
       console.error("Switch tenant failed:", error);

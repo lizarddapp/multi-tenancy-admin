@@ -16,7 +16,7 @@ export const useRoles = (params?: {
   search?: string;
 }) => {
   return useQuery({
-    queryKey: [...QUERY_KEYS.ROLES, params],
+    queryKey: [...QUERY_KEYS.ADMIN.ROLES, params],
     queryFn: () => rolesService.list(params),
   });
 };
@@ -24,7 +24,7 @@ export const useRoles = (params?: {
 // Get single role
 export const useRole = (id: number) => {
   return useQuery({
-    queryKey: QUERY_KEYS.ROLE(id),
+    queryKey: QUERY_KEYS.ADMIN.ROLE(id),
     queryFn: () => rolesService.get(id),
     enabled: !!id,
   });
@@ -37,7 +37,7 @@ export const usePermissions = (params?: {
   resource?: string;
 }) => {
   return useQuery({
-    queryKey: [...QUERY_KEYS.PERMISSIONS, params],
+    queryKey: [...QUERY_KEYS.ADMIN.PERMISSIONS, params],
     queryFn: () => rolesService.getPermissions(params),
   });
 };
@@ -49,7 +49,7 @@ export const useCreateRole = () => {
   return useMutation({
     mutationFn: (data: CreateRoleRequest) => rolesService.create(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ROLES });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ADMIN.ROLES });
       toast.success("Role created successfully");
     },
     onError: (error: any) => {
@@ -67,8 +67,8 @@ export const useUpdateRole = () => {
     mutationFn: ({ id, data }: { id: number; data: UpdateRoleRequest }) =>
       rolesService.update(id, data),
     onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ROLES });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ROLE(id) });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ADMIN.ROLES });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ADMIN.ROLE(id) });
       toast.success("Role updated successfully");
     },
     onError: (error: any) => {
@@ -85,7 +85,7 @@ export const useDeleteRole = () => {
   return useMutation({
     mutationFn: (id: number) => rolesService.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ROLES });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ADMIN.ROLES });
       toast.success("Role deleted successfully");
     },
     onError: (error: any) => {
@@ -108,10 +108,10 @@ export const useAssignPermissions = () => {
       data: AssignPermissionsRequest;
     }) => rolesService.assignPermissions(id, data),
     onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ROLES });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ROLE(id) });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ADMIN.ROLES });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ADMIN.ROLE(id) });
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.ROLE_PERMISSIONS(id),
+        queryKey: QUERY_KEYS.ADMIN.ROLE_PERMISSIONS(id),
       });
       toast.success("Permissions assigned successfully");
     },
