@@ -30,7 +30,7 @@ export function meta({}: Route.MetaArgs) {
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("admin@multitenant.com");
-  const [password, setPassword] = useState("SuperAdmin123!");
+  const [password, setPassword] = useState("123");
   const [remember, setRemember] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 

@@ -31,7 +31,7 @@ export const ENDPOINTS = {
       UPDATE: (id: number) => `/admin/roles/${id}`,
       DELETE: (id: number) => `/admin/roles/${id}`,
       ASSIGN_PERMISSIONS: (id: number) => `/admin/roles/${id}/permissions`,
-      PERMISSIONS: "/admin/roles/permissions",
+      PERMISSIONS: "/admin/permissions",
     },
 
     // User Role Management
@@ -41,8 +41,6 @@ export const ENDPOINTS = {
       REMOVE: (userId: string) => `/admin/users/${userId}/roles`,
       PERMISSIONS: (userId: string) =>
         `/admin/users/${userId}/roles/permissions`,
-      CHECK_PERMISSION: (userId: string) =>
-        `/admin/users/${userId}/roles/check-permission`,
       BULK_ASSIGN: (userId: string) =>
         `/admin/users/${userId}/roles/bulk-assign`,
     },
@@ -137,6 +135,7 @@ export const ENDPOINTS = {
     CREATE: "/admin/users",
     GET: (id: string) => `/admin/users/${id}`,
     UPDATE: (id: string) => `/admin/users/${id}`,
+    UPDATE_STATUS: (id: string) => `/admin/users/${id}/status`,
     DELETE: (id: string) => `/admin/users/${id}`,
     INVITE: "/admin/users/invite",
     BULK_INVITE: "/admin/users/bulk-invite",

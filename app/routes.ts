@@ -1,4 +1,9 @@
-import { layout, route, type RouteConfig } from "@react-router/dev/routes";
+import {
+  layout,
+  prefix,
+  route,
+  type RouteConfig,
+} from "@react-router/dev/routes";
 import { flatRoutes } from "@react-router/fs-routes";
 
 const appRoutes = await flatRoutes();
@@ -8,32 +13,9 @@ const unauthenticatedRoutes = await flatRoutes({
 const controlRoutes = await flatRoutes({
   rootDirectory: "./routes-control",
 });
-
+console.log("Generated routes:", appRoutes);
 export default [
-  ...unauthenticatedRoutes.map((unauthenticatedRoute) => {
-    console.log(unauthenticatedRoute.path, unauthenticatedRoute.file);
-    return route(
-      `auth${unauthenticatedRoute.path ? `/${unauthenticatedRoute.path}` : ""}`,
-      unauthenticatedRoute.file,
-      unauthenticatedRoute.children
-    );
-  }),
-
-  ...controlRoutes.map((controlRoute) => {
-    return route(
-      `control${controlRoute.path ? `/${controlRoute.path}` : ""}`,
-      controlRoute.file,
-      controlRoute.children
-    );
-  }),
-
-  layout("./layouts/tenant.tsx", [
-    ...appRoutes.map((appRoute) => {
-      return route(
-        `:tenant${appRoute.path ? `/${appRoute.path}` : ""}`,
-        appRoute.file,
-        appRoute.children
-      );
-    }),
-  ]),
+  ...prefix("_auth", [...unauthenticatedRoutes]),
+  ...prefix("_control", [...controlRoutes]),
+  layout("./layouts/tenant.tsx", [...prefix(":tenant", [...appRoutes])]),
 ] satisfies RouteConfig;

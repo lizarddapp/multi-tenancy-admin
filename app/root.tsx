@@ -60,8 +60,12 @@ function AuthenticatedApp() {
 
   useEffect(() => {
     // Don't redirect if we're already on the login page
-    if (!isLoading && !isAuthenticated && location.pathname !== "/auth/login") {
-      navigate("/auth/login");
+    if (
+      !isLoading &&
+      !isAuthenticated &&
+      location.pathname !== "/_auth/login"
+    ) {
+      navigate("/_auth/login");
     }
     // if is authenticated and path still in / , navigate to the first tenant
     else if (!isLoading && isAuthenticated && location.pathname === "/") {
@@ -112,7 +116,7 @@ function AuthenticatedApp() {
   }
 
   // Allow login page to render even when not authenticated
-  if (!isAuthenticated && location.pathname === "/auth/login") {
+  if (!isAuthenticated && location.pathname === "/_auth/login") {
     return <Outlet />;
   }
 

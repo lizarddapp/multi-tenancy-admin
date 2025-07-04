@@ -86,6 +86,8 @@ export interface User {
   emailVerifiedAt?: string | null;
   createdAt: string;
   updatedAt: string;
+  roles?: Role[];
+  tenants?: Tenant[];
 }
 
 export interface AuthUser {
@@ -112,6 +114,30 @@ export enum UserStatus {
   ACTIVE = "active",
   INACTIVE = "inactive",
   SUSPENDED = "suspended",
+}
+
+// User management request types
+export interface CreateUserRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  phone?: string;
+  role?: UserRole;
+  tenantId?: number;
+  status?: UserStatus;
+}
+
+export interface UpdateUserRequest {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  status?: UserStatus;
+}
+
+export interface UpdateUserStatusRequest {
+  status: UserStatus;
 }
 
 // Role and Permission types
