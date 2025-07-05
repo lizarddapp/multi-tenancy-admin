@@ -9,30 +9,30 @@
 export const ADMIN_ROUTES = {
   // Tenant-specific routes (require tenant context)
   TENANT: {
-    DASHBOARD: '',
-    USERS: 'users',
-    ROLES: 'roles',
-    SETTINGS: 'settings',
-    ANALYTICS: 'analytics',
-    PROFILE: 'profile',
+    DASHBOARD: "",
+    USERS: "users",
+    ROLES: "roles",
+    SETTINGS: "settings",
+    ANALYTICS: "analytics",
+    PROFILE: "profile",
   },
-  
+
   // Control routes (super admin only)
   CONTROL: {
-    TENANTS: 'admin/tenants',
-    SYSTEM: 'admin/system',
-    USERS: 'admin/users',
-    BILLING: 'admin/billing',
-    AUDIT: 'admin/audit',
+    TENANTS: "admin/tenants",
+    SYSTEM: "admin/system",
+    USERS: "admin/users",
+    BILLING: "admin/billing",
+    AUDIT: "admin/audit",
   },
-  
+
   // Global routes (no tenant context)
   GLOBAL: {
-    LOGIN: '/login',
-    LOGOUT: '/logout',
-    TENANT_SELECT: '/select-tenant',
-    UNAUTHORIZED: '/unauthorized',
-    NOT_FOUND: '/404',
+    LOGIN: "/login",
+    LOGOUT: "/logout",
+    TENANT_SELECT: "/select-tenant",
+    UNAUTHORIZED: "/unauthorized",
+    NOT_FOUND: "/404",
   },
 } as const;
 
@@ -43,20 +43,20 @@ export const ADMIN_ROUTES = {
  */
 export const requiresTenantContext = (path: string): boolean => {
   // Remove leading slash for consistency
-  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
-  
+  const cleanPath = path.startsWith("/") ? path.slice(1) : path;
+
   // Global routes don't require tenant context
   const globalRoutes = Object.values(ADMIN_ROUTES.GLOBAL);
-  if (globalRoutes.some(route => cleanPath === route.slice(1))) {
+  if (globalRoutes.some((route) => cleanPath === route.slice(1))) {
     return false;
   }
-  
+
   // Control routes don't require tenant context (they're global admin routes)
   const controlRoutes = Object.values(ADMIN_ROUTES.CONTROL);
-  if (controlRoutes.some(route => cleanPath.startsWith(route))) {
+  if (controlRoutes.some((route) => cleanPath.startsWith(route))) {
     return false;
   }
-  
+
   // All other routes require tenant context
   return true;
 };
@@ -87,36 +87,37 @@ export const getDefaultTenantRoute = (tenant: string): string => {
  * @returns Parsed URL information
  */
 export const parseTenantUrl = (pathname: string) => {
-  const segments = pathname.split('/').filter(Boolean);
-  
+  const segments = pathname.split("/").filter(Boolean);
+
   if (segments.length === 0) {
     return {
       tenant: null,
-      path: '/',
+      path: "/",
       isGlobal: true,
       isValid: false,
     };
   }
-  
+
   const [firstSegment, ...restSegments] = segments;
-  
+
   // Check if first segment is a valid tenant slug
   if (isValidTenantSlug(firstSegment)) {
     return {
       tenant: firstSegment,
-      path: '/' + restSegments.join('/'),
+      path: "/" + restSegments.join("/"),
       isGlobal: false,
       isValid: true,
     };
   }
-  
+
   // Check if it's a global route
-  const fullPath = '/' + segments.join('/');
-  const isGlobalRoute = Object.values(ADMIN_ROUTES.GLOBAL).includes(fullPath) ||
-                       Object.values(ADMIN_ROUTES.CONTROL).some(route => 
-                         fullPath.startsWith('/' + route)
-                       );
-  
+  const fullPath = "/" + segments.join("/");
+  const isGlobalRoute =
+    Object.values(ADMIN_ROUTES.GLOBAL).includes(fullPath as any) ||
+    Object.values(ADMIN_ROUTES.CONTROL).some((route) =>
+      fullPath.startsWith("/" + route)
+    );
+
   return {
     tenant: null,
     path: fullPath,
@@ -133,13 +134,13 @@ export const parseTenantUrl = (pathname: string) => {
  * @returns The complete URL
  */
 export const buildTenantUrl = (
-  tenant: string, 
-  path: string, 
+  tenant: string,
+  path: string,
   params?: Record<string, string | number | boolean>
 ): string => {
-  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  const cleanPath = path.startsWith("/") ? path.slice(1) : path;
   let url = `/${tenant}/${cleanPath}`;
-  
+
   if (params && Object.keys(params).length > 0) {
     const searchParams = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {
@@ -147,7 +148,7 @@ export const buildTenantUrl = (
     });
     url += `?${searchParams.toString()}`;
   }
-  
+
   return url;
 };
 
@@ -156,29 +157,29 @@ export const buildTenantUrl = (
  */
 export const getTenantNavigationMenu = () => [
   {
-    label: 'Dashboard',
+    label: "Dashboard",
     path: ADMIN_ROUTES.TENANT.DASHBOARD,
-    icon: 'LayoutDashboard',
+    icon: "LayoutDashboard",
   },
   {
-    label: 'Users',
+    label: "Users",
     path: ADMIN_ROUTES.TENANT.USERS,
-    icon: 'Users',
+    icon: "Users",
   },
   {
-    label: 'Roles',
+    label: "Roles",
     path: ADMIN_ROUTES.TENANT.ROLES,
-    icon: 'Shield',
+    icon: "Shield",
   },
   {
-    label: 'Analytics',
+    label: "Analytics",
     path: ADMIN_ROUTES.TENANT.ANALYTICS,
-    icon: 'BarChart3',
+    icon: "BarChart3",
   },
   {
-    label: 'Settings',
+    label: "Settings",
     path: ADMIN_ROUTES.TENANT.SETTINGS,
-    icon: 'Settings',
+    icon: "Settings",
   },
 ];
 
@@ -187,33 +188,33 @@ export const getTenantNavigationMenu = () => [
  */
 export const getControlNavigationMenu = () => [
   {
-    label: 'Tenants',
+    label: "Tenants",
     path: ADMIN_ROUTES.CONTROL.TENANTS,
-    icon: 'Building',
+    icon: "Building",
     global: true,
   },
   {
-    label: 'System',
+    label: "System",
     path: ADMIN_ROUTES.CONTROL.SYSTEM,
-    icon: 'Server',
+    icon: "Server",
     global: true,
   },
   {
-    label: 'Global Users',
+    label: "Global Users",
     path: ADMIN_ROUTES.CONTROL.USERS,
-    icon: 'UserCog',
+    icon: "UserCog",
     global: true,
   },
   {
-    label: 'Billing',
+    label: "Billing",
     path: ADMIN_ROUTES.CONTROL.BILLING,
-    icon: 'CreditCard',
+    icon: "CreditCard",
     global: true,
   },
   {
-    label: 'Audit',
+    label: "Audit",
     path: ADMIN_ROUTES.CONTROL.AUDIT,
-    icon: 'FileText',
+    icon: "FileText",
     global: true,
   },
 ];
@@ -226,34 +227,34 @@ export const getControlNavigationMenu = () => [
  */
 export const getBreadcrumbItems = (tenant: string | null, path: string) => {
   const items = [];
-  
+
   // Add tenant context if available
   if (tenant) {
     items.push({
-      label: 'Dashboard',
-      path: '',
+      label: "Dashboard",
+      path: "",
     });
   }
-  
+
   // Parse path segments
-  const segments = path.split('/').filter(Boolean);
-  let currentPath = '';
-  
+  const segments = path.split("/").filter(Boolean);
+  let currentPath = "";
+
   segments.forEach((segment, index) => {
     currentPath += `/${segment}`;
-    
+
     // Capitalize and format segment name
     const label = segment
-      .split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-    
+      .split("-")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+
     items.push({
       label,
       path: index === segments.length - 1 ? undefined : currentPath,
     });
   });
-  
+
   return items;
 };
 
@@ -264,29 +265,29 @@ export const getBreadcrumbItems = (tenant: string | null, path: string) => {
  * @returns Whether user can access the route
  */
 export const canAccessRoute = (
-  path: string, 
+  path: string,
   userPermissions: string[]
 ): boolean => {
   // Define route permissions mapping
   const routePermissions: Record<string, string[]> = {
-    [ADMIN_ROUTES.TENANT.USERS]: ['users.read'],
-    [ADMIN_ROUTES.TENANT.ROLES]: ['roles.read'],
-    [ADMIN_ROUTES.TENANT.ANALYTICS]: ['analytics.read'],
-    [ADMIN_ROUTES.CONTROL.TENANTS]: ['tenants.read'],
-    [ADMIN_ROUTES.CONTROL.SYSTEM]: ['system.manage'],
-    [ADMIN_ROUTES.CONTROL.USERS]: ['users.manage'],
-    [ADMIN_ROUTES.CONTROL.BILLING]: ['billing.manage'],
-    [ADMIN_ROUTES.CONTROL.AUDIT]: ['audit.read'],
+    [ADMIN_ROUTES.TENANT.USERS]: ["users.read"],
+    [ADMIN_ROUTES.TENANT.ROLES]: ["roles.read"],
+    [ADMIN_ROUTES.TENANT.ANALYTICS]: ["analytics.read"],
+    [ADMIN_ROUTES.CONTROL.TENANTS]: ["tenants.read"],
+    [ADMIN_ROUTES.CONTROL.SYSTEM]: ["system.manage"],
+    [ADMIN_ROUTES.CONTROL.USERS]: ["users.manage"],
+    [ADMIN_ROUTES.CONTROL.BILLING]: ["billing.manage"],
+    [ADMIN_ROUTES.CONTROL.AUDIT]: ["audit.read"],
   };
-  
+
   const requiredPermissions = routePermissions[path];
   if (!requiredPermissions) {
     // No specific permissions required
     return true;
   }
-  
+
   // Check if user has any of the required permissions
-  return requiredPermissions.some(permission => 
+  return requiredPermissions.some((permission) =>
     userPermissions.includes(permission)
   );
 };

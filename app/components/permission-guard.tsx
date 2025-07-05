@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import { usePermissions } from "~/lib/hooks/usePermissions";
 
 interface PermissionGuardProps {
@@ -23,7 +23,8 @@ export function PermissionGuard({
   requireAll = false,
   fallback = null,
 }: PermissionGuardProps) {
-  const { hasPermission, hasAnyPermission, hasAllPermissions, canAccess } = usePermissions();
+  const { hasPermission, hasAnyPermission, hasAllPermissions, canAccess } =
+    usePermissions();
 
   let hasAccess = false;
 
@@ -32,7 +33,7 @@ export function PermissionGuard({
     hasAccess = hasPermission(permission);
   } else if (permissions && permissions.length > 0) {
     // Multiple permissions check
-    hasAccess = requireAll 
+    hasAccess = requireAll
       ? hasAllPermissions(permissions)
       : hasAnyPermission(permissions);
   } else if (resource) {
@@ -52,13 +53,21 @@ export function PermissionGuard({
 export function usePermissionGuard() {
   const permissions = usePermissions();
 
-  const canRender = (options: Omit<PermissionGuardProps, 'children' | 'fallback'>) => {
-    const { permission, permissions: perms, resource, action, requireAll = false } = options;
+  const canRender = (
+    options: Omit<PermissionGuardProps, "children" | "fallback">
+  ) => {
+    const {
+      permission,
+      permissions: perms,
+      resource,
+      action,
+      requireAll = false,
+    } = options;
 
     if (permission) {
       return permissions.hasPermission(permission);
     } else if (perms && perms.length > 0) {
-      return requireAll 
+      return requireAll
         ? permissions.hasAllPermissions(perms)
         : permissions.hasAnyPermission(perms);
     } else if (resource) {

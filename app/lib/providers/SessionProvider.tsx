@@ -96,7 +96,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
 
       // Invalidate and refetch user query
       await queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.AUTH_USER,
+        queryKey: QUERY_KEYS.ADMIN.AUTH_USER,
       });
     } catch (error) {
       console.error("Login failed:", error);
@@ -129,7 +129,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
     if (!tokenStorage.hasToken()) return;
 
     // Invalidate user query to trigger refetch
-    queryClient.invalidateQueries({ queryKey: QUERY_KEYS.AUTH_USER });
+    queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ADMIN.AUTH_USER });
   };
 
   // Context value
