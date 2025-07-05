@@ -43,6 +43,10 @@ export interface DataTableProps<T> {
 
   // Row key function
   getRowKey: (item: T) => string | number;
+
+  // Column visibility
+  tableKey?: string;
+  defaultColumns?: string[];
 }
 
 // Common action types for table cells

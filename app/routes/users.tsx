@@ -64,23 +64,17 @@ const Users = () => {
       cell: (user) => (
         <div className="min-w-0">
           <TableCells.User name={user.fullName} />
-          {/* Show email on mobile below the name */}
-          <div className="sm:hidden mt-1 text-sm text-muted-foreground">
-            {user.email}
-          </div>
         </div>
       ),
     },
     {
       id: "email",
       header: "Email",
-      className: "hidden sm:table-cell",
       cell: (user) => <TableCells.Text>{user.email}</TableCells.Text>,
     },
     {
       id: "phone",
       header: "Phone",
-      className: "hidden md:table-cell",
       cell: (user) => <TableCells.Text>{user.phone || "N/A"}</TableCells.Text>,
     },
     {
@@ -91,7 +85,6 @@ const Users = () => {
     {
       id: "roles",
       header: "Roles",
-      className: "hidden lg:table-cell",
       cell: (user) => (
         <TableCells.Count count={user.roles?.length || 0} label="role" />
       ),
@@ -99,7 +92,6 @@ const Users = () => {
     {
       id: "created",
       header: "Created",
-      className: "hidden lg:table-cell",
       cell: (user) => <TableCells.Date date={user.createdAt} />,
     },
     {
@@ -175,6 +167,8 @@ const Users = () => {
       emptyMessage="No users found"
       searchEmptyMessage="No users found matching your search"
       getRowKey={(user) => user.id}
+      tableKey="users"
+      defaultColumns={["user", "email", "phone", "status", "roles", "created"]}
     />
   );
 };

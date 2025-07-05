@@ -18,6 +18,8 @@ import {
 } from "~/components/ui/table";
 import { Search, Plus } from "lucide-react";
 import { TenantLink } from "~/components/tenant-link";
+import { ColumnVisibility } from "~/components/ui/column-visibility";
+import { useColumnVisibilityStore } from "~/lib/stores/column-visibility";
 import type { ColumnDef, DataTableProps } from "~/types/data-table";
 
 // Re-export types for convenience
@@ -53,9 +55,56 @@ export function DataTable<T>({
   searchEmptyMessage,
   className,
   getRowKey,
+  tableKey,
+  defaultColumns,
 }: DataTableProps<T>) {
   const finalEmptyMessage =
     searchValue && searchEmptyMessage ? searchEmptyMessage : emptyMessage;
+
+  const { getVisibleColumns, initializeColumns } = useColumnVisibilityStore();
+
+  // Initialize columns on mount if tableKey and defaultColumns are provided
+  React.useEffect(() => {
+    if (tableKey && defaultColumns) {
+      const allColumnIds = columns
+        .filter((col) => col.id !== "actions" && col.header)
+        .map((col) => col.id);
+      initializeColumns(tableKey, allColumnIds, defaultColumns);
+    }
+  }, [tableKey, defaultColumns, columns, initializeColumns]);
+
+  // Get visible columns from store
+  const visibleColumns = tableKey ? getVisibleColumns(tableKey) : {};
+
+  // Filter columns based on visibility while preserving responsive classes
+  const filteredColumns = React.useMemo(() => {
+    if (!tableKey || !defaultColumns) {
+      return columns;
+    }
+
+    return columns.map((column) => {
+      // Always show actions column
+      if (column.id === "actions") {
+        return column;
+      }
+
+      // Check visibility from store, default to true for default columns
+      const isVisible =
+        visibleColumns[column.id] !== undefined
+          ? visibleColumns[column.id]
+          : defaultColumns.includes(column.id);
+
+      // If column is hidden by user, override all responsive classes with hidden
+      if (!isVisible) {
+        return {
+          ...column,
+          className: "hidden",
+        };
+      }
+
+      return column;
+    });
+  }, [columns, visibleColumns, tableKey, defaultColumns]);
 
   return (
     <div className={`flex-1 space-y-4 ${className || ""}`}>
@@ -92,8 +141,8 @@ export function DataTable<T>({
                 {data.length !== 1 ? "s" : ""} found
               </CardDescription>
             </div>
-            {onSearchChange && (
-              <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2">
+              {onSearchChange && (
                 <div className="relative">
                   <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -103,8 +152,15 @@ export function DataTable<T>({
                     className="pl-8 w-full sm:w-64"
                   />
                 </div>
-              </div>
-            )}
+              )}
+              {tableKey && defaultColumns && (
+                <ColumnVisibility
+                  tableKey={tableKey}
+                  columns={columns}
+                  defaultColumns={defaultColumns}
+                />
+              )}
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -117,7 +173,7 @@ export function DataTable<T>({
               <Table className="min-w-full">
                 <TableHeader>
                   <TableRow>
-                    {columns.map((column) => (
+                    {filteredColumns.map((column) => (
                       <TableHead
                         key={column.id}
                         className={`${
@@ -132,7 +188,7 @@ export function DataTable<T>({
                 <TableBody>
                   {data.map((item) => (
                     <TableRow key={getRowKey(item)}>
-                      {columns.map((column) => (
+                      {filteredColumns.map((column) => (
                         <TableCell key={column.id} className={column.className}>
                           {getCellValue(item, column)}
                         </TableCell>
@@ -142,7 +198,11 @@ export function DataTable<T>({
                   {data.length === 0 && (
                     <TableRow>
                       <TableCell
-                        colSpan={columns.length}
+                        colSpan={
+                          filteredColumns.filter(
+                            (col) => !col.className?.includes("hidden")
+                          ).length
+                        }
                         className="text-center py-8"
                       >
                         <div className="text-muted-foreground">
