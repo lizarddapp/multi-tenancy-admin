@@ -21,7 +21,6 @@ export interface Tenant {
   name: string;
   slug: string;
   status: TenantStatus;
-  settings: object;
   trialEndsAt: string | null;
   createdAt: string;
   updatedAt: string;
@@ -33,7 +32,6 @@ export interface CreateTenantRequest {
   name: string;
   slug: string;
   status?: TenantStatus;
-  settings?: object;
   trialEndsAt?: string | null;
 }
 
@@ -41,7 +39,6 @@ export interface UpdateTenantRequest {
   name?: string;
   slug?: string;
   status?: TenantStatus;
-  settings?: object;
   trialEndsAt?: string | null;
 }
 

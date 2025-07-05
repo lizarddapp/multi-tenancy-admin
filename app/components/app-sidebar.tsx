@@ -33,23 +33,7 @@ const getNavData = (
     email: user?.email || "admin@example.com",
     avatar: "", // Empty string - will fallback to initials
   },
-  teams: [
-    {
-      name: "Acme Corp",
-      logo: Building,
-      plan: "Enterprise",
-    },
-    {
-      name: "TechStart Inc",
-      logo: Building,
-      plan: "Pro",
-    },
-    {
-      name: "Design Studio",
-      logo: Building,
-      plan: "Trial",
-    },
-  ],
+
   navMain: [
     // Dashboard is always visible
     {
@@ -266,7 +250,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        <TeamSwitcher />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />

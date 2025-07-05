@@ -28,7 +28,6 @@ export function TenantForm({
     name: tenant?.name || "",
     slug: tenant?.slug || "",
     status: tenant?.status || TenantStatus.TRIAL,
-    settings: tenant?.settings || {},
     trialEndsAt: tenant?.trialEndsAt || null,
   });
 
