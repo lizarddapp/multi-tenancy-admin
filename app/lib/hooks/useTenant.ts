@@ -3,6 +3,7 @@ import { useLocation } from "react-router";
 import { useAvailableTenants } from "./useAuth";
 import { getCurrentTenant, type SimpleTenant } from "~/lib/utils/tenant";
 import { apiClient } from "~/lib/api/client";
+import { HEADERS } from "~/lib/constants/headers";
 
 /**
  * Custom hook to get the current tenant and related functionality
@@ -21,16 +22,16 @@ export function useTenant() {
   useEffect(() => {
     if (currentTenant?.id) {
       // Set the x-tenant-id header for all future requests
-      apiClient.defaults.headers.common["x-tenant-id"] =
+      apiClient.defaults.headers.common[HEADERS.TENANT_ID] =
         currentTenant.id.toString();
     } else {
       // Remove the header if no tenant is selected
-      delete apiClient.defaults.headers.common["x-tenant-id"];
+      delete apiClient.defaults.headers.common[HEADERS.TENANT_ID];
     }
 
     // Cleanup function to remove header when component unmounts
     return () => {
-      delete apiClient.defaults.headers.common["x-tenant-id"];
+      delete apiClient.defaults.headers.common[HEADERS.TENANT_ID];
     };
   }, [currentTenant?.id]);
 

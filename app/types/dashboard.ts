@@ -120,8 +120,7 @@ export interface CreateUserRequest {
   email: string;
   password: string;
   phone?: string;
-  role?: UserRole;
-  tenantId?: number;
+  roleId: number; // Role ID is required
   status?: UserStatus;
 }
 

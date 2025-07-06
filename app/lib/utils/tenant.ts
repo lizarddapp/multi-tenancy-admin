@@ -1,4 +1,5 @@
 import { apiClient } from "~/lib/api/client";
+import { HEADERS } from "~/lib/constants/headers";
 
 // Simple tenant type matching the API response
 export interface SimpleTenant {
@@ -180,7 +181,7 @@ export function formatTenantDisplay(tenant: SimpleTenant): string {
  * @param tenantId - The tenant ID to set in the header
  */
 export function setTenantHeader(tenantId: number | string): void {
-  apiClient.defaults.headers.common["x-tenant-id"] = tenantId.toString();
+  apiClient.defaults.headers.common[HEADERS.TENANT_ID] = tenantId.toString();
 }
 
 /**
@@ -189,7 +190,7 @@ export function setTenantHeader(tenantId: number | string): void {
  * @returns The current tenant ID from headers or null if not set
  */
 export function getTenantHeader(): string | null {
-  const header = apiClient.defaults.headers.common["x-tenant-id"];
+  const header = apiClient.defaults.headers.common[HEADERS.TENANT_ID];
   return typeof header === "string" ? header : null;
 }
 
@@ -197,7 +198,7 @@ export function getTenantHeader(): string | null {
  * Clear the x-tenant-id header from axios default headers
  */
 export function clearTenantHeader(): void {
-  delete apiClient.defaults.headers.common["x-tenant-id"];
+  delete apiClient.defaults.headers.common[HEADERS.TENANT_ID];
 }
 
 /**
@@ -206,5 +207,5 @@ export function clearTenantHeader(): void {
  * @returns True if the header is set, false otherwise
  */
 export function hasTenantHeader(): boolean {
-  return "x-tenant-id" in apiClient.defaults.headers.common;
+  return HEADERS.TENANT_ID in apiClient.defaults.headers.common;
 }

@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import {
   Card,
   CardContent,
@@ -9,50 +12,77 @@ import {
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { ArrowLeft, User, Mail, Phone, Shield, Building } from "lucide-react";
+import { ArrowLeft, User, Mail, Phone, Shield } from "lucide-react";
 import { useCreateUser } from "~/lib/hooks/useUsers";
-import { useTenants } from "~/lib/hooks/useTenants";
+import { useRoles } from "~/lib/hooks/useRoles";
 import type { CreateUserRequest } from "~/types/dashboard";
-import { UserRole, UserStatus } from "~/types/dashboard";
+import { UserStatus } from "~/types/dashboard";
 import { TenantLink } from "~/components/tenant-link";
 import { useTenantNavigation } from "~/lib/hooks/useNavigation";
 
+// Form validation schema
+const createUserSchema = z.object({
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  phone: z.string().optional(),
+  roleId: z.number().min(1, "Role is required"),
+  status: z.nativeEnum(UserStatus),
+});
+
+type CreateUserFormData = z.infer<typeof createUserSchema>;
+
 const CreateUser = () => {
   const { navigate } = useTenantNavigation();
-  const [formData, setFormData] = useState<CreateUserRequest>({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    phone: "",
-    role: UserRole.VIEWER,
-    status: UserStatus.ACTIVE,
+
+  // Initialize form with react-hook-form
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<CreateUserFormData>({
+    resolver: zodResolver(createUserSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      phone: "",
+      roleId: 0,
+      status: UserStatus.ACTIVE,
+    },
   });
 
-  // Mutations and queries
+  // Watch the roleId field to conditionally show tenant selection
+  const selectedRoleId = watch("roleId");
+
+  // Queries
   const createUserMutation = useCreateUser();
-  const { data: tenantsResponse } = useTenants();
-  const tenants = tenantsResponse?.data?.data || [];
+  const { data: rolesResponse, isLoading: rolesLoading } = useRoles();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const roles = rolesResponse?.data?.data || [];
 
+  const onSubmit = async (data: CreateUserFormData) => {
     try {
-      await createUserMutation.mutateAsync(formData);
+      // Transform form data to match API expectations
+      const createUserData: CreateUserRequest = {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        password: data.password,
+        phone: data.phone || undefined,
+        roleId: data.roleId,
+        status: data.status,
+      };
+
+      await createUserMutation.mutateAsync(createUserData);
       navigate("/users");
     } catch (error) {
       // Error is handled by the mutation
     }
-  };
-
-  const handleInputChange = (
-    field: keyof CreateUserRequest,
-    value: string | number | undefined
-  ) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
   };
 
   return (
@@ -79,7 +109,7 @@ const CreateUser = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="firstName">
@@ -88,25 +118,27 @@ const CreateUser = () => {
                 </Label>
                 <Input
                   id="firstName"
-                  value={formData.firstName}
-                  onChange={(e) =>
-                    handleInputChange("firstName", e.target.value)
-                  }
+                  {...register("firstName")}
                   placeholder="John"
-                  required
                 />
+                {errors.firstName && (
+                  <p className="text-sm text-destructive">
+                    {errors.firstName.message}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="lastName">Last Name</Label>
                 <Input
                   id="lastName"
-                  value={formData.lastName}
-                  onChange={(e) =>
-                    handleInputChange("lastName", e.target.value)
-                  }
+                  {...register("lastName")}
                   placeholder="Doe"
-                  required
                 />
+                {errors.lastName && (
+                  <p className="text-sm text-destructive">
+                    {errors.lastName.message}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -118,11 +150,14 @@ const CreateUser = () => {
               <Input
                 id="email"
                 type="email"
-                value={formData.email}
-                onChange={(e) => handleInputChange("email", e.target.value)}
+                {...register("email")}
                 placeholder="john.doe@example.com"
-                required
               />
+              {errors.email && (
+                <p className="text-sm text-destructive">
+                  {errors.email.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -130,11 +165,14 @@ const CreateUser = () => {
               <Input
                 id="password"
                 type="password"
-                value={formData.password}
-                onChange={(e) => handleInputChange("password", e.target.value)}
+                {...register("password")}
                 placeholder="Enter a secure password"
-                required
               />
+              {errors.password && (
+                <p className="text-sm text-destructive">
+                  {errors.password.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -145,82 +183,78 @@ const CreateUser = () => {
               <Input
                 id="phone"
                 type="tel"
-                value={formData.phone}
-                onChange={(e) => handleInputChange("phone", e.target.value)}
+                {...register("phone")}
                 placeholder="+1 (555) 123-4567"
               />
+              {errors.phone && (
+                <p className="text-sm text-destructive">
+                  {errors.phone.message}
+                </p>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="role">
+                <Label htmlFor="roleId">
                   <Shield className="inline h-4 w-4 mr-2" />
                   Role
                 </Label>
-                <select
-                  id="role"
-                  value={formData.role}
-                  onChange={(e) => handleInputChange("role", e.target.value)}
-                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                  required
-                >
-                  <option value={UserRole.SUPER_ADMIN}>Super Admin</option>
-                  <option value={UserRole.ADMIN}>Admin</option>
-                  <option value={UserRole.MANAGER}>Manager</option>
-                  <option value={UserRole.VIEWER}>Viewer</option>
-                </select>
+                {rolesLoading ? (
+                  <div className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm items-center">
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent mr-2" />
+                    Loading roles...
+                  </div>
+                ) : (
+                  <select
+                    id="roleId"
+                    {...register("roleId", {
+                      setValueAs: (value) => parseInt(value),
+                    })}
+                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <option value={0}>Select a role</option>
+                    {roles.map((role) => (
+                      <option key={role.id} value={role.id}>
+                        {role.displayName}
+                      </option>
+                    ))}
+                  </select>
+                )}
+                {errors.roleId && (
+                  <p className="text-sm text-destructive">
+                    {errors.roleId.message}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="status">Status</Label>
                 <select
                   id="status"
-                  value={formData.status}
-                  onChange={(e) => handleInputChange("status", e.target.value)}
+                  {...register("status")}
                   className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                  required
                 >
                   <option value={UserStatus.ACTIVE}>Active</option>
                   <option value={UserStatus.INACTIVE}>Inactive</option>
                   <option value={UserStatus.SUSPENDED}>Suspended</option>
                 </select>
+                {errors.status && (
+                  <p className="text-sm text-destructive">
+                    {errors.status.message}
+                  </p>
+                )}
               </div>
             </div>
-
-            {formData.role !== UserRole.SUPER_ADMIN && (
-              <div className="space-y-2">
-                <Label htmlFor="tenantId">
-                  <Building className="inline h-4 w-4 mr-2" />
-                  Tenant (Optional)
-                </Label>
-                <select
-                  id="tenantId"
-                  value={formData.tenantId?.toString() || ""}
-                  onChange={(e) =>
-                    handleInputChange(
-                      "tenantId",
-                      e.target.value ? parseInt(e.target.value) : undefined
-                    )
-                  }
-                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <option value="">No specific tenant</option>
-                  {tenants.map((tenant) => (
-                    <option key={tenant.id} value={tenant.id.toString()}>
-                      {tenant.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
 
             <div className="flex items-center space-x-4 pt-4">
               <Button
                 type="submit"
-                disabled={createUserMutation.isPending}
+                disabled={isSubmitting || createUserMutation.isPending}
                 className="min-w-[120px]"
               >
-                {createUserMutation.isPending ? "Creating..." : "Create User"}
+                {isSubmitting || createUserMutation.isPending
+                  ? "Creating..."
+                  : "Create User"}
               </Button>
               <TenantLink to="/users">
                 <Button type="button" variant="outline">
