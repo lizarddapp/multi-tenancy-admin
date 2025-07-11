@@ -62,27 +62,7 @@ import type {
   CreateRoleRequest,
   UpdateRoleRequest,
 } from "~/types/dashboard";
-
-// Permission grouping utility
-const groupPermissionsByResource = (
-  permissions: Permission[]
-): PermissionGroup[] => {
-  const grouped = permissions.reduce((acc, permission) => {
-    if (!acc[permission.resource]) {
-      acc[permission.resource] = {
-        resource: permission.resource,
-        displayName:
-          permission.resource.charAt(0).toUpperCase() +
-          permission.resource.slice(1),
-        permissions: [],
-      };
-    }
-    acc[permission.resource].permissions.push(permission);
-    return acc;
-  }, {} as Record<string, PermissionGroup>);
-
-  return Object.values(grouped);
-};
+import { PermissionsSelector } from "~/components/permissions-selector";
 
 // Role form component
 interface RoleFormProps {
@@ -97,25 +77,34 @@ function RoleForm({ role, onSubmit, onCancel, isSubmitting }: RoleFormProps) {
     name: role?.name || "",
     displayName: role?.displayName || "",
     description: role?.description || "",
-    permissionIds: role?.permissions?.map((p) => p.id) || [],
+    permissionNames: role?.permissions?.map((p) => p.name) || [],
   });
 
-  const { data: permissionsResponse, isLoading: permissionsLoading } =
-    usePermissions();
-  const permissions = permissionsResponse?.data?.data || [];
-  const permissionGroups = groupPermissionsByResource(permissions);
+  const { data: permissionsResponse } = usePermissions();
+  const allPermissions = permissionsResponse?.data?.data || [];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await onSubmit(formData);
+
+    // Convert permission names to IDs for the API call
+    const permissionIds = allPermissions
+      .filter((permission) =>
+        formData.permissionNames.includes(permission.name)
+      )
+      .map((permission) => permission.id);
+
+    await onSubmit({
+      ...formData,
+      permissionIds,
+    });
   };
 
-  const handlePermissionChange = (permissionId: number, checked: boolean) => {
+  const handlePermissionChange = (permissionName: string, checked: boolean) => {
     setFormData((prev) => ({
       ...prev,
-      permissionIds: checked
-        ? [...prev.permissionIds, permissionId]
-        : prev.permissionIds.filter((id) => id !== permissionId),
+      permissionNames: checked
+        ? [...prev.permissionNames, permissionName]
+        : prev.permissionNames.filter((name) => name !== permissionName),
     }));
   };
 
@@ -123,12 +112,12 @@ function RoleForm({ role, onSubmit, onCancel, isSubmitting }: RoleFormProps) {
     groupPermissions: Permission[],
     checked: boolean
   ) => {
-    const groupIds = groupPermissions.map((p) => p.id);
+    const groupNames = groupPermissions.map((p) => p.name);
     setFormData((prev) => ({
       ...prev,
-      permissionIds: checked
-        ? [...new Set([...prev.permissionIds, ...groupIds])]
-        : prev.permissionIds.filter((id) => !groupIds.includes(id)),
+      permissionNames: checked
+        ? [...new Set([...prev.permissionNames, ...groupNames])]
+        : prev.permissionNames.filter((name) => !groupNames.includes(name)),
     }));
   };
 
@@ -175,83 +164,12 @@ function RoleForm({ role, onSubmit, onCancel, isSubmitting }: RoleFormProps) {
           />
         </div>
 
-        <div className="space-y-4">
-          <Label>Permissions</Label>
-          {permissionsLoading ? (
-            <div className="text-sm text-muted-foreground">
-              Loading permissions...
-            </div>
-          ) : (
-            <div className="space-y-4 max-h-96 overflow-y-auto border rounded-md p-4">
-              {permissionGroups.map((group) => {
-                const groupPermissionIds = group.permissions.map((p) => p.id);
-                const selectedInGroup = groupPermissionIds.filter((id) =>
-                  formData.permissionIds.includes(id)
-                );
-                const allSelected =
-                  selectedInGroup.length === groupPermissionIds.length;
-                const someSelected =
-                  selectedInGroup.length > 0 &&
-                  selectedInGroup.length < groupPermissionIds.length;
-
-                return (
-                  <div key={group.resource} className="space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`group-${group.resource}`}
-                        checked={allSelected}
-                        ref={(el) => {
-                          if (el && "indeterminate" in el) {
-                            (el as any).indeterminate = someSelected;
-                          }
-                        }}
-                        onCheckedChange={(checked) =>
-                          handleGroupToggle(
-                            group.permissions,
-                            checked as boolean
-                          )
-                        }
-                      />
-                      <Label
-                        htmlFor={`group-${group.resource}`}
-                        className="text-sm font-medium"
-                      >
-                        {group.displayName}
-                      </Label>
-                    </div>
-                    <div className="ml-6 grid grid-cols-2 gap-2">
-                      {group.permissions.map((permission) => (
-                        <div
-                          key={permission.id}
-                          className="flex items-center space-x-2"
-                        >
-                          <Checkbox
-                            id={`permission-${permission.id}`}
-                            checked={formData.permissionIds.includes(
-                              permission.id
-                            )}
-                            onCheckedChange={(checked) =>
-                              handlePermissionChange(
-                                permission.id,
-                                checked as boolean
-                              )
-                            }
-                          />
-                          <Label
-                            htmlFor={`permission-${permission.id}`}
-                            className="text-xs text-muted-foreground"
-                          >
-                            {permission.action}
-                          </Label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
+        <PermissionsSelector
+          selectedPermissions={formData.permissionNames}
+          onPermissionChange={handlePermissionChange}
+          onGroupToggle={handleGroupToggle}
+          isLoading={isSubmitting}
+        />
       </div>
 
       <DialogFooter>

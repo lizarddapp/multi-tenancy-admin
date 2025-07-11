@@ -72,6 +72,16 @@ export interface LoginFormData {
   remember?: boolean;
 }
 
+export interface UserRoleAssignment {
+  id: number;
+  userId: number;
+  roleId: number;
+  tenantId: number | null;
+  createdAt: string;
+  updatedAt: string;
+  role: Role;
+}
+
 export interface User {
   id: number;
   email: string;
@@ -84,7 +94,11 @@ export interface User {
   createdAt: string;
   updatedAt: string;
   roles?: Role[];
+  userRoles?: UserRoleAssignment[];
   tenants?: Tenant[];
+  permissions?: string[];
+  directPermissions?: Permission[];
+  permissionSource?: string;
 }
 
 export interface AuthUser {

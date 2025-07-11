@@ -17,7 +17,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "~/components/ui/sidebar";
-import { useSwitchTenant } from "~/lib/hooks/useAuth";
+
 import { useTenant } from "~/lib/hooks/useTenant";
 import { Badge } from "~/components/ui/badge";
 import { toast } from "sonner";
@@ -42,15 +42,11 @@ export function TeamSwitcher() {
     hasCurrentTenant,
   } = useTenant();
 
-  const switchTenantMutation = useSwitchTenant();
-
   // Handle tenant switching
   const handleTenantSwitch = async (tenant: SimpleTenant) => {
     if (tenant.id === activeTenant?.id) return;
 
     try {
-      // await switchTenantMutation.mutateAsync({ tenantId: tenant.id });
-
       // Save to localStorage
       saveSelectedTenant(tenant.slug);
 
@@ -169,7 +165,6 @@ export function TeamSwitcher() {
                 key={tenant.id}
                 onClick={() => handleTenantSwitch(tenant)}
                 className="gap-2 p-2"
-                disabled={switchTenantMutation.isPending}
               >
                 <div className="flex size-6 items-center justify-center rounded-md border">
                   <Building className="size-3.5 shrink-0" />

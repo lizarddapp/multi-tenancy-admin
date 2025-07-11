@@ -24,12 +24,15 @@ import {
   useUser,
   useUpdateUser,
   useUpdateUserStatus,
+  useUpdateUserPermissions,
 } from "~/lib/hooks/useUsers";
 import { useTenants } from "~/lib/hooks/useTenants";
+import { usePermissions } from "~/lib/hooks/useRoles";
 import type { UpdateUserRequest } from "~/types/dashboard";
 import { UserStatus } from "~/types/dashboard";
 import { TenantLink } from "~/components/tenant-link";
 import { useTenantNavigation } from "~/lib/hooks/useNavigation";
+import { PermissionsSelector } from "~/components/permissions-selector";
 
 const EditUser = () => {
   const { navigate } = useTenantNavigation();
@@ -41,14 +44,18 @@ const EditUser = () => {
     phone: "",
     status: UserStatus.ACTIVE,
   });
+  const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
 
   // Queries and mutations
   const { data: userResponse, isLoading, error } = useUser(id!);
   const user = userResponse?.data?.user;
+  const { data: permissionsResponse } = usePermissions();
   const updateUserMutation = useUpdateUser();
   const updateUserStatusMutation = useUpdateUserStatus();
+  const updateUserPermissionsMutation = useUpdateUserPermissions();
   const { data: tenantsResponse } = useTenants();
   const tenants = tenantsResponse?.data?.data || [];
+  const allPermissions = permissionsResponse?.data?.data || [];
 
   // Pre-fill form when user data loads
   useEffect(() => {
@@ -61,6 +68,12 @@ const EditUser = () => {
         status: user.status,
       });
     }
+  }, [user]);
+
+  // Load user permissions from permissions array
+  useEffect(() => {
+    const permissionNames = user?.permissions || [];
+    setSelectedPermissions(permissionNames);
   }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -92,6 +105,41 @@ const EditUser = () => {
         data: { status: newStatus },
       });
       setFormData((prev) => ({ ...prev, status: newStatus }));
+    } catch (error) {
+      // Error is handled by the mutation
+    }
+  };
+
+  const handlePermissionChange = (permissionName: string, checked: boolean) => {
+    setSelectedPermissions((prev) =>
+      checked
+        ? [...prev, permissionName]
+        : prev.filter((name) => name !== permissionName)
+    );
+  };
+
+  const handleGroupToggle = (groupPermissions: any[], checked: boolean) => {
+    const groupNames = groupPermissions.map((p) => p.name);
+    setSelectedPermissions((prev) =>
+      checked
+        ? [...new Set([...prev, ...groupNames])]
+        : prev.filter((name) => !groupNames.includes(name))
+    );
+  };
+
+  const handleUpdatePermissions = async () => {
+    if (!id) return;
+
+    try {
+      // Convert permission names to IDs for the API call
+      const permissionIds = allPermissions
+        .filter((permission) => selectedPermissions.includes(permission.name))
+        .map((permission) => permission.id);
+
+      await updateUserPermissionsMutation.mutateAsync({
+        id,
+        permissionIds,
+      });
     } catch (error) {
       // Error is handled by the mutation
     }
@@ -317,19 +365,26 @@ const EditUser = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {user.roles && user.roles.length > 0 ? (
-                  user.roles.map((role) => (
+                {user.userRoles && user.userRoles.length > 0 ? (
+                  user.userRoles.map((userRole) => (
                     <div
-                      key={role.id}
+                      key={userRole.id}
                       className="flex items-center justify-between p-2 border rounded"
                     >
                       <div>
-                        <div className="font-medium">{role.displayName}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {role.name}
+                        <div className="font-medium">
+                          {userRole.role.displayName}
                         </div>
+                        <div className="text-sm text-muted-foreground">
+                          {userRole.role.description}
+                        </div>
+                        {userRole.tenantId && (
+                          <div className="text-xs text-muted-foreground">
+                            Tenant ID: {userRole.tenantId}
+                          </div>
+                        )}
                       </div>
-                      <Badge variant="outline">{role.name}</Badge>
+                      <Badge variant="outline">{userRole.role.name}</Badge>
                     </div>
                   ))
                 ) : (
@@ -375,6 +430,39 @@ const EditUser = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* User Permissions */}
+          {
+            <Card>
+              <CardHeader>
+                <CardTitle>User Permissions</CardTitle>
+                <CardDescription>
+                  Manage direct permissions for this user
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <PermissionsSelector
+                    selectedPermissions={selectedPermissions}
+                    onPermissionChange={handlePermissionChange}
+                    onGroupToggle={handleGroupToggle}
+                    isLoading={updateUserPermissionsMutation.isPending}
+                  />
+                  <div className="flex justify-end">
+                    <Button
+                      onClick={handleUpdatePermissions}
+                      disabled={updateUserPermissionsMutation.isPending}
+                      size="sm"
+                    >
+                      {updateUserPermissionsMutation.isPending
+                        ? "Updating..."
+                        : "Update Permissions"}
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          }
         </div>
       </div>
     </div>

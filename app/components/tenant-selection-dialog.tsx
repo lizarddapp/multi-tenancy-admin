@@ -7,10 +7,16 @@ import {
   DialogTitle,
 } from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
 import { Building, Users, CheckCircle } from "lucide-react";
-import { useAvailableTenants, useSwitchTenant } from "~/lib/hooks/useAuth";
+import { useAvailableTenants } from "~/lib/hooks/useAuth";
 import { toast } from "sonner";
 
 interface TenantSelectionDialogProps {
@@ -25,9 +31,8 @@ export function TenantSelectionDialog({
   onTenantSelected,
 }: TenantSelectionDialogProps) {
   const [selectedTenantId, setSelectedTenantId] = useState<number | null>(null);
-  
+
   const { data: tenantsResponse, isLoading, error } = useAvailableTenants();
-  const switchTenantMutation = useSwitchTenant();
 
   const tenants = tenantsResponse?.data?.tenants || [];
 
@@ -37,24 +42,22 @@ export function TenantSelectionDialog({
       return;
     }
 
-    const selectedTenant = tenants.find(t => t.id === selectedTenantId);
+    const selectedTenant = tenants.find((t) => t.id === selectedTenantId);
     if (!selectedTenant) {
       toast.error("Selected tenant not found");
       return;
     }
 
     try {
-      await switchTenantMutation.mutateAsync({ tenantId: selectedTenantId });
-      
       // Save tenant slug to localStorage
       localStorage.setItem("selected_tenant_slug", selectedTenant.slug);
-      
+
       // Call the callback with tenant slug
       onTenantSelected(selectedTenant.slug);
-      
+
       // Close dialog
       onOpenChange(false);
-      
+
       toast.success(`Switched to ${selectedTenant.name}`);
     } catch (error: any) {
       console.error("Failed to switch tenant:", error);
@@ -99,16 +102,21 @@ export function TenantSelectionDialog({
 
           {error && (
             <div className="text-center py-8">
-              <p className="text-red-600">Failed to load tenants. Please try again.</p>
+              <p className="text-red-600">
+                Failed to load tenants. Please try again.
+              </p>
             </div>
           )}
 
           {!isLoading && !error && tenants.length === 0 && (
             <div className="text-center py-8">
               <Building className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No Tenants Available</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No Tenants Available
+              </h3>
               <p className="text-gray-600">
-                You don't have access to any tenants. Please contact your administrator.
+                You don't have access to any tenants. Please contact your
+                administrator.
               </p>
             </div>
           )}
@@ -133,7 +141,9 @@ export function TenantSelectionDialog({
                             <Building className="h-5 w-5 text-primary" />
                           </div>
                           <div>
-                            <CardTitle className="text-base">{tenant.name}</CardTitle>
+                            <CardTitle className="text-base">
+                              {tenant.name}
+                            </CardTitle>
                             <CardDescription className="text-sm">
                               {tenant.slug}
                             </CardDescription>
@@ -154,25 +164,14 @@ export function TenantSelectionDialog({
               </div>
 
               <div className="flex justify-end gap-3 pt-4 border-t">
-                <Button
-                  variant="outline"
-                  onClick={() => onOpenChange(false)}
-                  disabled={switchTenantMutation.isPending}
-                >
+                <Button variant="outline" onClick={() => onOpenChange(false)}>
                   Cancel
                 </Button>
                 <Button
                   onClick={handleTenantSelect}
-                  disabled={!selectedTenantId || switchTenantMutation.isPending}
+                  disabled={!selectedTenantId}
                 >
-                  {switchTenantMutation.isPending ? (
-                    <>
-                      <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                      Switching...
-                    </>
-                  ) : (
-                    "Select Tenant"
-                  )}
+                  Select Tenant
                 </Button>
               </div>
             </>

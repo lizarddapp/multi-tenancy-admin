@@ -39,10 +39,6 @@ export interface AvailableTenantsResponse {
   }>;
 }
 
-export interface SwitchTenantRequest {
-  tenantId: number;
-}
-
 export const authService = {
   // Register user
   register: async (
@@ -99,16 +95,6 @@ export const authService = {
   > => {
     return api.get<AvailableTenantsResponse>(
       ENDPOINTS.ADMIN.AUTH.AVAILABLE_TENANTS
-    );
-  },
-
-  // Switch tenant context
-  switchTenant: async (
-    data: SwitchTenantRequest
-  ): Promise<ApiResponse<{ user: AuthUser }>> => {
-    return api.post<{ user: AuthUser }>(
-      ENDPOINTS.ADMIN.AUTH.SWITCH_TENANT,
-      data
     );
   },
 };

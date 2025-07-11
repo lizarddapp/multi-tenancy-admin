@@ -7,6 +7,7 @@ import type {
   UpdateUserStatusRequest,
 } from "~/types/dashboard";
 import { toast } from "sonner";
+import { getErrorMessage } from "~/lib/utils/error";
 
 // Get all users
 export const useUsers = (params?: {
@@ -41,7 +42,8 @@ export const useCreateUser = () => {
       toast.success(response.message || "User created successfully");
     },
     onError: (error: any) => {
-      const message = error?.response?.data?.message || "Failed to create user";
+      console.error("Create user error:", error);
+      const message = getErrorMessage(error, "Failed to create user");
       toast.error(message);
     },
   });
@@ -62,7 +64,8 @@ export const useUpdateUser = () => {
       toast.success(response.message || "User updated successfully");
     },
     onError: (error: any) => {
-      const message = error?.response?.data?.message || "Failed to update user";
+      console.error("Update user error:", error);
+      const message = getErrorMessage(error, "Failed to update user");
       toast.error(message);
     },
   });
@@ -83,8 +86,8 @@ export const useUpdateUserStatus = () => {
       toast.success(response.message || "User status updated successfully");
     },
     onError: (error: any) => {
-      const message =
-        error?.response?.data?.message || "Failed to update user status";
+      console.error("Update user status error:", error);
+      const message = getErrorMessage(error, "Failed to update user status");
       toast.error(message);
     },
   });
@@ -101,7 +104,8 @@ export const useDeleteUser = () => {
       toast.success(response.message || "User deleted successfully");
     },
     onError: (error: any) => {
-      const message = error?.response?.data?.message || "Failed to delete user";
+      console.error("Delete user error:", error);
+      const message = getErrorMessage(error, "Failed to delete user");
       toast.error(message);
     },
   });
@@ -118,8 +122,30 @@ export const useInviteUser = () => {
       toast.success(response.message || "User invited successfully");
     },
     onError: (error: any) => {
-      const message = error?.response?.data?.message || "Failed to invite user";
+      console.error("Invite user error:", error);
+      const message = getErrorMessage(error, "Failed to invite user");
       toast.error(message);
+    },
+  });
+};
+
+// User permissions management
+export const useUpdateUserPermissions = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      permissionIds,
+    }: {
+      id: string;
+      permissionIds: number[];
+    }) => usersService.updatePermissions(id, { permissionIds }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+    onError: (error) => {
+      console.error("Error updating user permissions:", error);
     },
   });
 };
@@ -136,8 +162,8 @@ export const useBulkInviteUsers = () => {
       toast.success(response.message || "Users invited successfully");
     },
     onError: (error: any) => {
-      const message =
-        error?.response?.data?.message || "Failed to invite users";
+      console.error("Bulk invite users error:", error);
+      const message = getErrorMessage(error, "Failed to invite users");
       toast.error(message);
     },
   });

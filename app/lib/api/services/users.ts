@@ -86,4 +86,16 @@ export const usersService = {
   }): Promise<ApiResponse<{ results: any[] }>> => {
     return api.post<{ results: any[] }>(ENDPOINTS.USERS.BULK_INVITE, data);
   },
+
+  // Update user permissions
+  updatePermissions: async (
+    id: string,
+    data: { permissionIds: number[] }
+  ): Promise<ApiResponse<null>> => {
+    const response = await api.put(
+      `${ENDPOINTS.USERS.UPDATE_PERMISSIONS(id)}`,
+      data
+    );
+    return response.data;
+  },
 };

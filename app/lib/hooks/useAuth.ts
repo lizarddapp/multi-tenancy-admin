@@ -132,22 +132,6 @@ export const useAvailableTenants = () => {
   });
 };
 
-// Switch tenant mutation
-export const useSwitchTenant = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: authService.switchTenant,
-    onSuccess: () => {
-      // Invalidate auth queries to refresh user data
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ADMIN.AUTH_USER });
-    },
-    onError: (error) => {
-      console.error("Switch tenant failed:", error);
-    },
-  });
-};
-
 // Auth utility hooks
 export const useAuth = () => {
   const { data: profileResponse, isLoading, error } = useCurrentUser();

@@ -20,7 +20,6 @@ export const ENDPOINTS = {
       LOGOUT: "/admin/auth/logout",
       VERIFY_TOKEN: "/admin/auth/verify-token",
       AVAILABLE_TENANTS: "/admin/auth/tenants",
-      SWITCH_TENANT: "/admin/auth/switch-tenant",
     },
 
     // Role and Permission Management
@@ -132,13 +131,12 @@ export const ENDPOINTS = {
   // Users (these endpoints may need to be added to backend)
   USERS: {
     LIST: "/admin/users",
-    CREATE: "/admin/users",
     GET: (id: string) => `/admin/users/${id}`,
+    CREATE: "/admin/users",
     UPDATE: (id: string) => `/admin/users/${id}`,
-    UPDATE_STATUS: (id: string) => `/admin/users/${id}/status`,
     DELETE: (id: string) => `/admin/users/${id}`,
-    INVITE: "/admin/users/invite",
     BULK_INVITE: "/admin/users/bulk-invite",
+    UPDATE_PERMISSIONS: (id: string) => `/admin/users/${id}/permissions`,
   },
 
   // Analytics (these endpoints may need to be added to backend)
