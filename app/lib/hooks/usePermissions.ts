@@ -1,17 +1,23 @@
 import { useSession } from "~/lib/providers/SessionProvider";
+import { useMyPermissions } from "./useAuth";
 import type { AuthUser } from "~/types/dashboard";
 
 /**
  * Hook for checking user permissions
+ * Now fetches permissions from the API endpoint instead of relying on session data
  */
 export function usePermissions() {
   const { user } = useSession();
+  const { data: permissionsResponse, isLoading, error } = useMyPermissions();
+
+  // Get permissions from API response
+  const permissions = permissionsResponse?.data?.permissions || [];
 
   /**
    * Check if user has a specific permission
    */
   const hasPermission = (permission: string): boolean => {
-    if (!user || !user.permissions) {
+    if (!user) {
       return false;
     }
 
@@ -20,14 +26,14 @@ export function usePermissions() {
       return true;
     }
 
-    return user.permissions.includes(permission);
+    return permissions.includes(permission);
   };
 
   /**
    * Check if user has any of the specified permissions
    */
-  const hasAnyPermission = (permissions: string[]): boolean => {
-    if (!user || !user.permissions) {
+  const hasAnyPermission = (permissionList: string[]): boolean => {
+    if (!user) {
       return false;
     }
 
@@ -36,16 +42,16 @@ export function usePermissions() {
       return true;
     }
 
-    return permissions.some((permission) =>
-      user.permissions!.includes(permission)
+    return permissionList.some((permission) =>
+      permissions.includes(permission)
     );
   };
 
   /**
    * Check if user has all of the specified permissions
    */
-  const hasAllPermissions = (permissions: string[]): boolean => {
-    if (!user || !user.permissions) {
+  const hasAllPermissions = (permissionList: string[]): boolean => {
+    if (!user) {
       return false;
     }
 
@@ -54,8 +60,8 @@ export function usePermissions() {
       return true;
     }
 
-    return permissions.every((permission) =>
-      user.permissions!.includes(permission)
+    return permissionList.every((permission) =>
+      permissions.includes(permission)
     );
   };
 
@@ -95,14 +101,18 @@ export function usePermissions() {
       return hasPermission(`${resource}.${action}`);
     } else {
       // Check if user has any permission for the resource
-      const resourcePermissions =
-        user.permissions?.filter((p) => p.startsWith(`${resource}.`)) || [];
+      const resourcePermissions = permissions.filter((p) =>
+        p.startsWith(`${resource}.`)
+      );
       return resourcePermissions.length > 0;
     }
   };
 
   return {
     user,
+    permissions,
+    isLoading,
+    error,
     hasPermission,
     hasAnyPermission,
     hasAllPermissions,
@@ -143,10 +153,21 @@ export const PERMISSIONS = {
 
   // System permissions
   SYSTEM_MANAGE: "system.manage",
+
+  // Product permissions
+  PRODUCTS_CREATE: "products.create",
+  PRODUCTS_READ: "products.read",
+  PRODUCTS_UPDATE: "products.update",
+  PRODUCTS_DELETE: "products.delete",
+  PRODUCTS_MANAGE: "products.manage",
+
+  // Billing permissions
+  BILLING_READ: "billing.read",
+  BILLING_MANAGE: "billing.manage",
 } as const;
 
 /**
- * Resource constants
+ * Resource constants for easy reference
  */
 export const RESOURCES = {
   USERS: "users",
@@ -154,6 +175,6 @@ export const RESOURCES = {
   ANALYTICS: "analytics",
   ROLES: "roles",
   SYSTEM: "system",
-  BILLING: "billing",
   PRODUCTS: "products",
+  BILLING: "billing",
 } as const;

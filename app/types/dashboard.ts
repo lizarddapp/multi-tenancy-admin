@@ -144,10 +144,18 @@ export interface UpdateUserRequest {
   email?: string;
   phone?: string;
   status?: UserStatus;
+  password?: string;
+  confirmPassword?: string;
 }
 
 export interface UpdateUserStatusRequest {
   status: UserStatus;
+}
+
+export interface InviteUserRequest {
+  email: string;
+  roleId: number;
+  permissions?: string[];
 }
 
 // Role and Permission types

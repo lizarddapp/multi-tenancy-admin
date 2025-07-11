@@ -5,6 +5,7 @@ import type {
   CreateUserRequest,
   UpdateUserRequest,
   UpdateUserStatusRequest,
+  InviteUserRequest,
 } from "~/types/dashboard";
 import { toast } from "sonner";
 import { getErrorMessage } from "~/lib/utils/error";
@@ -116,7 +117,7 @@ export const useInviteUser = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CreateUserRequest) => usersService.invite(data),
+    mutationFn: (data: InviteUserRequest) => usersService.invite(data),
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.USERS });
       toast.success(response.message || "User invited successfully");

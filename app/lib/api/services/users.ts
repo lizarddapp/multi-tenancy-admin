@@ -6,6 +6,7 @@ import type {
   CreateUserRequest,
   UpdateUserRequest,
   UpdateUserStatusRequest,
+  InviteUserRequest,
 } from "~/types/dashboard";
 
 export interface UsersListResponse {
@@ -74,10 +75,8 @@ export const usersService = {
   },
 
   // Invite user
-  invite: async (
-    data: CreateUserRequest
-  ): Promise<ApiResponse<{ user: User }>> => {
-    return api.post<{ user: User }>(ENDPOINTS.USERS.INVITE, data);
+  invite: async (data: InviteUserRequest): Promise<ApiResponse<null>> => {
+    return api.post<null>(ENDPOINTS.USERS.INVITE, data);
   },
 
   // Bulk invite users

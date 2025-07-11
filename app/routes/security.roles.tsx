@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useLoaderData } from "react-router";
 import {
   Card,
   CardContent,
@@ -40,7 +39,6 @@ import {
 } from "~/components/ui/alert-dialog";
 import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
-import { Checkbox } from "~/components/ui/checkbox";
 import { Plus, Search, Edit, Trash2, MoreHorizontal } from "lucide-react";
 import {
   DropdownMenu,
@@ -58,7 +56,6 @@ import {
 import type {
   Role,
   Permission,
-  PermissionGroup,
   CreateRoleRequest,
   UpdateRoleRequest,
 } from "~/types/dashboard";
@@ -189,7 +186,7 @@ export default function RolesPage() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingRole, setEditingRole] = useState<Role | null>(null);
 
-  // Queries
+  // Queries (tenant context is handled within the hooks)
   const { data: rolesResponse, isLoading, error } = useRoles({ search });
   const roles = rolesResponse?.data?.data || [];
 

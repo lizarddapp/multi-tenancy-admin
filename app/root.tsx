@@ -15,6 +15,7 @@ import { QueryProvider } from "./lib/providers/QueryProvider";
 import { SessionProvider, useSession } from "./lib/providers/SessionProvider";
 import { useAvailableTenants } from "./lib/hooks/useAuth";
 import { TenantSelectionDialog } from "./components/tenant-selection-dialog";
+import { TenantInitializer } from "./components/tenant-initializer";
 import { Toaster } from "sonner";
 import "./app.css";
 
@@ -126,14 +127,14 @@ function AuthenticatedApp() {
   }
 
   return (
-    <>
+    <TenantInitializer>
       <Outlet />
       <TenantSelectionDialog
         open={showTenantDialog}
         onOpenChange={setShowTenantDialog}
         onTenantSelected={handleTenantSelected}
       />
-    </>
+    </TenantInitializer>
   );
 }
 

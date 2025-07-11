@@ -19,6 +19,9 @@ import {
   Shield,
   Building,
   Loader2,
+  Key,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import {
   useUser,
@@ -43,8 +46,13 @@ const EditUser = () => {
     email: "",
     phone: "",
     status: UserStatus.ACTIVE,
+    password: "",
+    confirmPassword: "",
   });
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
+  const [showPasswordFields, setShowPasswordFields] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Queries and mutations
   const { data: userResponse, isLoading, error } = useUser(id!);
@@ -66,6 +74,8 @@ const EditUser = () => {
         email: user.email,
         phone: user.phone || "",
         status: user.status,
+        password: "",
+        confirmPassword: "",
       });
     }
   }, [user]);
@@ -81,8 +91,34 @@ const EditUser = () => {
 
     if (!id) return;
 
+    // Validate password fields if they are filled
+    if (showPasswordFields && (formData.password || formData.confirmPassword)) {
+      if (formData.password !== formData.confirmPassword) {
+        alert("Passwords do not match");
+        return;
+      }
+      if (formData.password && formData.password.length < 6) {
+        alert("Password must be at least 6 characters long");
+        return;
+      }
+    }
+
     try {
-      await updateUserMutation.mutateAsync({ id, data: formData });
+      // Create update data, only include password if it's being updated
+      const updateData: UpdateUserRequest = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        status: formData.status,
+      };
+
+      // Only include password if it's being updated
+      if (showPasswordFields && formData.password) {
+        updateData.password = formData.password;
+      }
+
+      await updateUserMutation.mutateAsync({ id, data: updateData });
       navigate("/users");
     } catch (error) {
       // Error is handled by the mutation
@@ -275,6 +311,98 @@ const EditUser = () => {
                     onChange={(e) => handleInputChange("phone", e.target.value)}
                     placeholder="+1 (555) 123-4567"
                   />
+                </div>
+
+                {/* Password Update Section */}
+                <div className="space-y-4 pt-4 border-t">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-base font-medium">
+                      <Key className="inline h-4 w-4 mr-2" />
+                      Password Update
+                    </Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowPasswordFields(!showPasswordFields)}
+                    >
+                      {showPasswordFields ? "Cancel" : "Change Password"}
+                    </Button>
+                  </div>
+
+                  {showPasswordFields && (
+                    <div className="space-y-4 p-4 bg-muted/30 rounded-lg">
+                      <div className="space-y-2">
+                        <Label htmlFor="password">New Password</Label>
+                        <div className="relative">
+                          <Input
+                            id="password"
+                            type={showPassword ? "text" : "password"}
+                            value={formData.password}
+                            onChange={(e) =>
+                              handleInputChange("password", e.target.value)
+                            }
+                            placeholder="Enter new password"
+                            className="pr-10"
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="confirmPassword">
+                          Confirm New Password
+                        </Label>
+                        <div className="relative">
+                          <Input
+                            id="confirmPassword"
+                            type={showConfirmPassword ? "text" : "password"}
+                            value={formData.confirmPassword}
+                            onChange={(e) =>
+                              handleInputChange(
+                                "confirmPassword",
+                                e.target.value
+                              )
+                            }
+                            placeholder="Confirm new password"
+                            className="pr-10"
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                            onClick={() =>
+                              setShowConfirmPassword(!showConfirmPassword)
+                            }
+                          >
+                            {showConfirmPassword ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="text-sm text-muted-foreground">
+                        <p>• Password must be at least 6 characters long</p>
+                        <p>• Leave blank to keep current password</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex items-center space-x-4 pt-4">

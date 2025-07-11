@@ -126,9 +126,19 @@ export const useAvailableTenants = () => {
   return useQuery({
     queryKey: QUERY_KEYS.ADMIN.AUTH_AVAILABLE_TENANTS,
     queryFn: authService.getAvailableTenants,
-    enabled: !!authUtils.getToken(), // Enable when token exists
+    enabled: !!authUtils.getToken(),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+};
+
+// Get user permissions query
+export const useMyPermissions = () => {
+  return useQuery({
+    queryKey: QUERY_KEYS.ADMIN.AUTH_MY_PERMISSIONS,
+    queryFn: authService.getMyPermissions,
+    enabled: !!authUtils.getToken(),
+    staleTime: 5 * 60 * 1000, // 5 minutes
     retry: false,
-    refetchOnWindowFocus: false,
   });
 };
 

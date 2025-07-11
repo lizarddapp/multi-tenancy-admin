@@ -39,6 +39,10 @@ export interface AvailableTenantsResponse {
   }>;
 }
 
+export interface MyPermissionsResponse {
+  permissions: string[];
+}
+
 export const authService = {
   // Register user
   register: async (
@@ -95,6 +99,13 @@ export const authService = {
   > => {
     return api.get<AvailableTenantsResponse>(
       ENDPOINTS.ADMIN.AUTH.AVAILABLE_TENANTS
+    );
+  },
+
+  // Get user permissions for current tenant context
+  getMyPermissions: async (): Promise<ApiResponse<MyPermissionsResponse>> => {
+    return api.get<MyPermissionsResponse>(
+      ENDPOINTS.ADMIN.AUTH.GET_MY_PERMISSIONS
     );
   },
 };

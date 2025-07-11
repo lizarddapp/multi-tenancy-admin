@@ -28,10 +28,12 @@ import {
   setTenantHeader,
   type SimpleTenant,
 } from "~/lib/utils/tenant";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function TeamSwitcher() {
   const { isMobile } = useSidebar();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   // Use the custom tenant hook
   const {
@@ -52,6 +54,7 @@ export function TeamSwitcher() {
 
       // Set the tenant header immediately for subsequent requests
       setTenantHeader(tenant.id);
+      queryClient.invalidateQueries();
 
       // Navigate to new tenant using utility function
       const newPath = generateTenantPath(window.location.pathname, tenant.slug);

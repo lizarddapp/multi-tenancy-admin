@@ -20,6 +20,7 @@ export const ENDPOINTS = {
       LOGOUT: "/admin/auth/logout",
       VERIFY_TOKEN: "/admin/auth/verify-token",
       AVAILABLE_TENANTS: "/admin/auth/tenants",
+      GET_MY_PERMISSIONS: "/admin/auth/get-my-permissions",
     },
 
     // Role and Permission Management
@@ -135,6 +136,8 @@ export const ENDPOINTS = {
     CREATE: "/admin/users",
     UPDATE: (id: string) => `/admin/users/${id}`,
     DELETE: (id: string) => `/admin/users/${id}`,
+    UPDATE_STATUS: (id: string) => `/admin/users/${id}/status`,
+    INVITE: "/admin/users/invite",
     BULK_INVITE: "/admin/users/bulk-invite",
     UPDATE_PERMISSIONS: (id: string) => `/admin/users/${id}/permissions`,
   },
@@ -197,6 +200,7 @@ export const QUERY_KEYS = {
     // Authentication
     AUTH_USER: ["admin", "auth", "user"] as const,
     AUTH_AVAILABLE_TENANTS: ["admin", "auth", "available-tenants"] as const,
+    AUTH_MY_PERMISSIONS: ["admin", "auth", "my-permissions"] as const,
 
     // Roles and Permissions
     ROLES: ["admin", "roles"] as const,

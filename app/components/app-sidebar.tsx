@@ -244,7 +244,73 @@ const getNavData = (
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useSession();
-  const { canAccess } = usePermissions();
+  const { canAccess, isLoading, error } = usePermissions();
+
+  // Show minimal sidebar while permissions are loading
+  if (isLoading) {
+    return (
+      <Sidebar collapsible="icon" {...props}>
+        <SidebarHeader>
+          <TeamSwitcher />
+        </SidebarHeader>
+        <SidebarContent>
+          <div className="flex items-center justify-center h-32">
+            <div className="flex items-center space-x-2">
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+              <span className="text-sm text-muted-foreground">
+                Loading menu...
+              </span>
+            </div>
+          </div>
+        </SidebarContent>
+        <SidebarFooter>
+          <NavUser
+            user={{
+              name: user?.fullName || "Admin User",
+              email: user?.email || "admin@example.com",
+              avatar: "",
+            }}
+          />
+        </SidebarFooter>
+        <SidebarRail />
+      </Sidebar>
+    );
+  }
+
+  // Show basic sidebar if there's an error loading permissions
+  if (error) {
+    const basicNavData = {
+      user: {
+        name: user?.fullName || "Admin User",
+        email: user?.email || "admin@example.com",
+        avatar: "",
+      },
+      navMain: [
+        {
+          title: "Dashboard",
+          url: "/",
+          icon: LayoutDashboard,
+          isActive: true,
+        },
+      ],
+    };
+
+    return (
+      <Sidebar collapsible="icon" {...props}>
+        <SidebarHeader>
+          <TeamSwitcher />
+        </SidebarHeader>
+        <SidebarContent>
+          <NavMain items={basicNavData.navMain} />
+        </SidebarContent>
+        <SidebarFooter>
+          <NavUser user={basicNavData.user} />
+        </SidebarFooter>
+        <SidebarRail />
+      </Sidebar>
+    );
+  }
+
   const data = getNavData(user, canAccess);
 
   return (

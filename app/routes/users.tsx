@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Badge } from "~/components/ui/badge";
-import { Plus, Shield } from "lucide-react";
+import { Button } from "~/components/ui/button";
+import { Plus, Shield, UserPlus } from "lucide-react";
 import {
   useUsers,
   useDeleteUser,
@@ -15,6 +16,7 @@ import {
   createEmptyStateAction,
 } from "~/components/ui/empty-state";
 import type { ColumnDef } from "~/types/data-table";
+import { TenantLink } from "~/components/tenant-link";
 
 const getUserStatusBadge = (status: UserStatus) => {
   switch (status) {
@@ -150,26 +152,57 @@ const Users = () => {
   }
 
   return (
-    <DataTable
-      data={users}
-      isLoading={isLoading}
-      columns={columns}
-      title="Users"
-      description="Manage users and their access"
-      searchValue={search}
-      onSearchChange={setSearch}
-      searchPlaceholder="Search users..."
-      createAction={{
-        label: "Add User",
-        href: "/users/create",
-        icon: Plus,
-      }}
-      emptyMessage="No users found"
-      searchEmptyMessage="No users found matching your search"
-      getRowKey={(user) => user.id}
-      tableKey="users"
-      defaultColumns={["user", "email", "phone", "status", "roles", "created"]}
-    />
+    <div className="flex-1 space-y-4">
+      {/* Custom Header with Multiple Actions */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
+            Users
+          </h2>
+          <p className="text-muted-foreground text-sm sm:text-base">
+            Manage users and their access
+          </p>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <TenantLink to="/users/invite">
+            <Button variant="outline" className="w-full sm:w-auto">
+              <UserPlus className="mr-2 h-4 w-4" />
+              Invite User
+            </Button>
+          </TenantLink>
+          <TenantLink to="/users/create">
+            <Button className="w-full sm:w-auto">
+              <Plus className="mr-2 h-4 w-4" />
+              Add User
+            </Button>
+          </TenantLink>
+        </div>
+      </div>
+
+      {/* DataTable without createAction since we have custom header */}
+      <DataTable
+        data={users}
+        isLoading={isLoading}
+        columns={columns}
+        title="Users"
+        description="Manage users and their access"
+        searchValue={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search users..."
+        emptyMessage="No users found"
+        searchEmptyMessage="No users found matching your search"
+        getRowKey={(user) => user.id}
+        tableKey="users"
+        defaultColumns={[
+          "user",
+          "email",
+          "phone",
+          "status",
+          "roles",
+          "created",
+        ]}
+      />
+    </div>
   );
 };
 

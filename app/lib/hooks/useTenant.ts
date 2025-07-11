@@ -1,13 +1,10 @@
-import { useEffect } from "react";
 import { useLocation } from "react-router";
 import { useAvailableTenants } from "./useAuth";
 import { getCurrentTenant, type SimpleTenant } from "~/lib/utils/tenant";
-import { apiClient } from "~/lib/api/client";
-import { HEADERS } from "~/lib/constants/headers";
 
 /**
  * Custom hook to get the current tenant and related functionality
- * Automatically sets the x-tenant-id header in axios when tenant is detected
+ * Note: Tenant header initialization is handled by TenantInitializer component
  *
  * @returns Object containing current tenant, loading state, and helper functions
  */
@@ -17,23 +14,6 @@ export function useTenant() {
 
   const tenants = tenantsResponse?.data?.tenants || [];
   const currentTenant = getCurrentTenant(tenants, location.pathname);
-
-  // Set axios header when current tenant changes
-  useEffect(() => {
-    if (currentTenant?.id) {
-      // Set the x-tenant-id header for all future requests
-      apiClient.defaults.headers.common[HEADERS.TENANT_ID] =
-        currentTenant.id.toString();
-    } else {
-      // Remove the header if no tenant is selected
-      delete apiClient.defaults.headers.common[HEADERS.TENANT_ID];
-    }
-
-    // Cleanup function to remove header when component unmounts
-    return () => {
-      delete apiClient.defaults.headers.common[HEADERS.TENANT_ID];
-    };
-  }, [currentTenant?.id]);
 
   return {
     // Current tenant data
