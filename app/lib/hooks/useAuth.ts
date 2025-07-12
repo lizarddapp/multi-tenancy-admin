@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { authService, authUtils } from "../api/services/auth";
 import { QUERY_KEYS } from "../api/endpoints";
+import { useTenant } from "./useTenant";
 
 // Login mutation
 export const useLogin = () => {
@@ -132,11 +133,16 @@ export const useAvailableTenants = () => {
 };
 
 // Get user permissions query
-export const useMyPermissions = () => {
+export const useMyPermissions = (tenantId?: number | null) => {
+  const tenant = useTenant();
+
+  // Use provided tenantId or fall back to tenant context
+  const effectiveTenantId = tenantId ?? tenant.currentTenant?.id;
+
   return useQuery({
-    queryKey: QUERY_KEYS.ADMIN.AUTH_MY_PERMISSIONS,
-    queryFn: authService.getMyPermissions,
-    enabled: !!authUtils.getToken(),
+    queryKey: [...QUERY_KEYS.ADMIN.AUTH_MY_PERMISSIONS, effectiveTenantId],
+    queryFn: () => authService.getMyPermissions(effectiveTenantId),
+    enabled: !!authUtils.getToken() && !!effectiveTenantId,
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: false,
   });

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
+import { useForm } from "react-hook-form";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
@@ -12,10 +13,16 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { Separator } from "~/components/ui/separator";
-import { Building, Eye, EyeOff, Lock, Mail } from "lucide-react";
+import { Building, Eye, EyeOff, Lock, Mail, AlertCircle } from "lucide-react";
 import { useSession } from "~/lib/providers/SessionProvider";
 import { toast } from "sonner";
 import type { Route } from "../+types/root";
+
+interface LoginFormData {
+  email: string;
+  password: string;
+  remember: boolean;
+}
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -29,13 +36,25 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState("admin@multitenant.com");
-  const [password, setPassword] = useState("123");
-  const [remember, setRemember] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
 
   const { login, isAuthenticated } = useSession();
   const navigate = useNavigate();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setError,
+    clearErrors,
+  } = useForm<LoginFormData>({
+    defaultValues: {
+      email: "admin@multitenant.com",
+      password: "123",
+      remember: false,
+    },
+  });
 
   // Redirect if already authenticated (only on initial load)
   useEffect(() => {
@@ -44,21 +63,47 @@ export default function Login() {
     }
   }, [isAuthenticated, navigate]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
+    setLoginError(null);
+    clearErrors();
 
     try {
-      await login(email, password, remember);
+      await login(data.email, data.password, data.remember);
       toast.success("Welcome back!");
 
       // Navigate after successful login
       navigate("/", { replace: true });
     } catch (error: any) {
       console.error("Login failed:", error);
-      toast.error(
-        error?.response?.data?.message || "Login failed. Please try again."
-      );
+
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Login failed. Please try again.";
+      const errorCode = error?.response?.status;
+
+      // Handle different types of errors
+      if (errorCode === 400 || errorCode === 401) {
+        // Bad request or unauthorized - show field-specific errors
+        if (errorMessage.toLowerCase().includes("email")) {
+          setError("email", {
+            type: "manual",
+            message: errorMessage,
+          });
+        } else if (errorMessage.toLowerCase().includes("password")) {
+          setError("password", {
+            type: "manual",
+            message: errorMessage,
+          });
+        } else {
+          // General login error
+          setLoginError(errorMessage);
+        }
+      } else {
+        // Other errors - show as toast
+        toast.error(errorMessage);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -91,7 +136,15 @@ export default function Login() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <form onSubmit={handleSubmit} className="space-y-4">
+            {/* General login error */}
+            {loginError && (
+              <div className="flex items-center gap-2 p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md dark:text-red-400 dark:bg-red-950 dark:border-red-800">
+                <AlertCircle className="h-4 w-4" />
+                {loginError}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <div className="relative">
@@ -100,12 +153,25 @@ export default function Login() {
                     id="email"
                     type="email"
                     placeholder="admin@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10"
-                    required
+                    className={`pl-10 ${
+                      errors.email
+                        ? "border-red-500 focus-visible:ring-red-500"
+                        : ""
+                    }`}
+                    {...register("email", {
+                      required: "Email is required",
+                      pattern: {
+                        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                        message: "Invalid email address",
+                      },
+                    })}
                   />
                 </div>
+                {errors.email && (
+                  <p className="text-sm text-red-600 dark:text-red-400">
+                    {errors.email.message}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -116,10 +182,18 @@ export default function Login() {
                     id="password"
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 pr-10"
-                    required
+                    className={`pl-10 pr-10 ${
+                      errors.password
+                        ? "border-red-500 focus-visible:ring-red-500"
+                        : ""
+                    }`}
+                    {...register("password", {
+                      required: "Password is required",
+                      minLength: {
+                        value: 3,
+                        message: "Password must be at least 3 characters",
+                      },
+                    })}
                   />
                   <Button
                     type="button"
@@ -138,15 +212,16 @@ export default function Login() {
                     </span>
                   </Button>
                 </div>
+                {errors.password && (
+                  <p className="text-sm text-red-600 dark:text-red-400">
+                    {errors.password.message}
+                  </p>
+                )}
               </div>
 
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="remember"
-                    checked={remember}
-                    onCheckedChange={(checked) => setRemember(checked === true)}
-                  />
+                  <Checkbox id="remember" {...register("remember")} />
                   <Label htmlFor="remember" className="text-sm">
                     Remember me
                   </Label>

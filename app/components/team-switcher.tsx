@@ -25,7 +25,6 @@ import {
   saveSelectedTenant,
   generateTenantPath,
   getTenantStatusColor,
-  setTenantHeader,
   type SimpleTenant,
 } from "~/lib/utils/tenant";
 import { useQueryClient } from "@tanstack/react-query";
@@ -33,7 +32,6 @@ import { useQueryClient } from "@tanstack/react-query";
 export function TeamSwitcher() {
   const { isMobile } = useSidebar();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
 
   // Use the custom tenant hook
   const {
@@ -49,16 +47,14 @@ export function TeamSwitcher() {
     if (tenant.id === activeTenant?.id) return;
 
     try {
-      // Save to localStorage
+      // Save to localStorage first
       saveSelectedTenant(tenant.slug);
 
-      // Set the tenant header immediately for subsequent requests
-      setTenantHeader(tenant.id);
-      queryClient.invalidateQueries();
-
-      // Navigate to new tenant using utility function
+      // Generate the new path for the tenant
       const newPath = generateTenantPath(window.location.pathname, tenant.slug);
-      navigate(newPath);
+
+      // Navigate first - this will trigger TenantInitializer to set the proper context
+      navigate(newPath, { replace: true });
 
       toast.success(`Switched to ${tenant.name}`);
     } catch (error: any) {

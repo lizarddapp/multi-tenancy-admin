@@ -24,7 +24,7 @@ export interface DataTableProps<T> {
   searchPlaceholder?: string;
 
   // Card wrapper
-  title: string;
+  title?: string;
   description?: string;
 
   // Actions

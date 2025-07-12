@@ -103,9 +103,16 @@ export const authService = {
   },
 
   // Get user permissions for current tenant context
-  getMyPermissions: async (): Promise<ApiResponse<MyPermissionsResponse>> => {
+  getMyPermissions: async (
+    tenantId?: number
+  ): Promise<ApiResponse<MyPermissionsResponse>> => {
     return api.get<MyPermissionsResponse>(
-      ENDPOINTS.ADMIN.AUTH.GET_MY_PERMISSIONS
+      ENDPOINTS.ADMIN.AUTH.GET_MY_PERMISSIONS,
+      {
+        headers: {
+          "X-Tenant-Id": tenantId?.toString() || "", // TODO: Get from tenant context
+        },
+      }
     );
   },
 };

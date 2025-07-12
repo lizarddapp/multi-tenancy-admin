@@ -50,9 +50,6 @@ apiClient.interceptors.response.use(
       if (typeof window !== "undefined" && window.localStorage) {
         localStorage.removeItem("auth_token");
       }
-
-      // Redirect to login
-      window.location.href = "/_auth/login";
     }
 
     // Handle other errors

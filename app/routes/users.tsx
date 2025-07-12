@@ -179,13 +179,11 @@ const Users = () => {
         </div>
       </div>
 
-      {/* DataTable without createAction since we have custom header */}
+      {/* DataTable without title/description since we have custom header */}
       <DataTable
         data={users}
         isLoading={isLoading}
         columns={columns}
-        title="Users"
-        description="Manage users and their access"
         searchValue={search}
         onSearchChange={setSearch}
         searchPlaceholder="Search users..."

@@ -108,39 +108,43 @@ export function DataTable<T>({
 
   return (
     <div className={`flex-1 space-y-4 ${className || ""}`}>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
-            {title}
-          </h2>
-          {description && (
-            <p className="text-muted-foreground text-sm sm:text-base">
-              {description}
-            </p>
+      {title && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
+              {title}
+            </h2>
+            {description && (
+              <p className="text-muted-foreground text-sm sm:text-base">
+                {description}
+              </p>
+            )}
+          </div>
+          {createAction && (
+            <TenantLink to={createAction.href}>
+              <Button className="w-full sm:w-auto">
+                {createAction.icon && (
+                  <createAction.icon className="mr-2 h-4 w-4" />
+                )}
+                {createAction.label}
+              </Button>
+            </TenantLink>
           )}
         </div>
-        {createAction && (
-          <TenantLink to={createAction.href}>
-            <Button className="w-full sm:w-auto">
-              {createAction.icon && (
-                <createAction.icon className="mr-2 h-4 w-4" />
-              )}
-              {createAction.label}
-            </Button>
-          </TenantLink>
-        )}
-      </div>
+      )}
 
       <Card>
         <CardHeader>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <CardTitle>All {title}</CardTitle>
-              <CardDescription>
-                {data.length} {title.toLowerCase()}
-                {data.length !== 1 ? "s" : ""} found
-              </CardDescription>
-            </div>
+            {title && (
+              <div>
+                <CardTitle>All {title}</CardTitle>
+                <CardDescription>
+                  {data.length} {title.toLowerCase()}
+                  {data.length !== 1 ? "s" : ""} found
+                </CardDescription>
+              </div>
+            )}
             <div className="flex items-center space-x-2">
               {onSearchChange && (
                 <div className="relative">

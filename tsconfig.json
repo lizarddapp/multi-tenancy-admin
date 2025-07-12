@@ -1,9 +1,17 @@
 {
   "include": [
-    "**/*",
+    "app/**/*",
+    "public/**/*",
+    "*.ts",
+    "*.tsx",
     "**/.server/**/*",
     "**/.client/**/*",
     ".react-router/types/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "build",
+    "../multi-tenancy-backend"
   ],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
