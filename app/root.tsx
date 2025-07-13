@@ -55,13 +55,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
 // - "/tenant1" -> true (tenant route)
 // - "/tenant1/dashboard" -> true (tenant route)
 // - "/_auth/login" -> false (auth route)
-// - "/_control/tenants" -> false (control route)
 // - "/" -> false (root route)
 function checkIsTenantRoute(pathname: string): boolean {
   return (
-    !!pathname.match(/^\/[^\/]+(?:\/.*)?$/) &&
-    !pathname.startsWith("/_auth") &&
-    !pathname.startsWith("/_control")
+    !!pathname.match(/^\/[^\/]+(?:\/.*)?$/) && !pathname.startsWith("/_auth")
   );
 }
 
@@ -138,7 +135,7 @@ function AuthenticatedApp() {
   // Check if current route is a tenant route (uses tenant layout)
   const isCurrentlyTenantRoute = checkIsTenantRoute(location.pathname);
 
-  // Allow unauthenticated routes (/_auth/* and /_control/*) to render
+  // Allow unauthenticated routes (/_auth/*) to render
   if (!isAuthenticated && !isCurrentlyTenantRoute) {
     return <Outlet />;
   }

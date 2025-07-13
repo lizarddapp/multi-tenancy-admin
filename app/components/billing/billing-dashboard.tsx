@@ -65,6 +65,46 @@ export function BillingDashboard() {
     );
   }
 
+  // Handle no billing setup (null data) differently from other errors
+  if (!error && billingResponse?.data && !billingResponse.data.data) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Billing & Subscription
+          </h1>
+          <p className="text-muted-foreground">
+            Set up your billing to start using advanced features
+          </p>
+        </div>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <CreditCard className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+              <h3 className="text-lg font-semibold mb-2">No Billing Setup</h3>
+              <p className="text-muted-foreground mb-6">
+                You haven't set up billing yet. Choose a plan to get started
+                with advanced features.
+              </p>
+              <Button onClick={() => setShowUpgradeDialog(true)}>
+                Choose a Plan
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <PricingPlansSection />
+
+        <UpgradePlanDialog
+          open={showUpgradeDialog}
+          onOpenChange={setShowUpgradeDialog}
+        />
+      </div>
+    );
+  }
+
+  // Handle other errors
   if (error || !billingResponse?.data) {
     return (
       <Card>
@@ -72,6 +112,7 @@ export function BillingDashboard() {
           <div className="text-center text-muted-foreground">
             <AlertTriangle className="h-8 w-8 mx-auto mb-2" />
             <p>Unable to load billing information</p>
+            <p className="text-sm mt-2">Please try refreshing the page</p>
           </div>
         </CardContent>
       </Card>

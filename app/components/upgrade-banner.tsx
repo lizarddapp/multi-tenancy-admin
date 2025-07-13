@@ -11,7 +11,11 @@ interface UpgradeBannerProps {
 }
 
 export function UpgradeBanner({ className }: UpgradeBannerProps) {
-  const { data: billingData, isLoading: billingLoading } = useCurrentBilling();
+  const {
+    data: billingData,
+    isLoading: billingLoading,
+    error,
+  } = useCurrentBilling();
   const billing = billingData?.data?.data;
 
   // Don't show banner if loading

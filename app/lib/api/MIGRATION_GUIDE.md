@@ -6,10 +6,9 @@ This guide documents the new organized endpoint structure for the admin applicat
 
 ## Overview
 
-The API endpoints are organized into two main groups:
+The API endpoints are organized into one main group:
 
 - **ADMIN** (`/api/v1/admin`) - Admin dashboard functionality
-- **CONTROL** (`/api/v1/control`) - Super admin control functionality
 
 ## Endpoint Structure
 
@@ -54,19 +53,6 @@ ENDPOINTS.ADMIN.USER_ROLES.CHECK_PERMISSION(userId);
 ENDPOINTS.ADMIN.USER_ROLES.BULK_ASSIGN(userId);
 ```
 
-### 4. Control Tenant Management Endpoints (Super Admin)
-
-```typescript
-// Tenant CRUD operations
-ENDPOINTS.CONTROL.TENANTS.LIST;
-ENDPOINTS.CONTROL.TENANTS.CREATE;
-ENDPOINTS.CONTROL.TENANTS.GET(id);
-ENDPOINTS.CONTROL.TENANTS.UPDATE(id);
-ENDPOINTS.CONTROL.TENANTS.DELETE(id);
-ENDPOINTS.CONTROL.TENANTS.UPDATE_STATUS(id);
-ENDPOINTS.CONTROL.TENANTS.ANALYTICS(id);
-```
-
 ### 5. Query Keys Structure
 
 ```typescript
@@ -79,11 +65,6 @@ QUERY_KEYS.ADMIN.ROLES;
 QUERY_KEYS.ADMIN.ROLE(id);
 QUERY_KEYS.ADMIN.PERMISSIONS;
 QUERY_KEYS.ADMIN.USER_ROLES(userId);
-
-// Control query keys (Super Admin)
-QUERY_KEYS.CONTROL.TENANTS;
-QUERY_KEYS.CONTROL.TENANT(id);
-QUERY_KEYS.CONTROL.TENANT_ANALYTICS(id);
 ```
 
 ## Route Mapping
@@ -107,11 +88,11 @@ QUERY_KEYS.CONTROL.TENANT_ANALYTICS(id);
 
 ### Tenant Management Routes
 
-| Old Endpoint           | New Endpoint                   | Route Group |
-| ---------------------- | ------------------------------ | ----------- |
-| `/tenants`             | `/control/tenants`             | CONTROL     |
-| `/tenants/{id}`        | `/control/tenants/{id}`        | CONTROL     |
-| `/tenants/{id}/status` | `/control/tenants/{id}/status` | CONTROL     |
+| Old Endpoint           | New Endpoint                 | Route Group |
+| ---------------------- | ---------------------------- | ----------- |
+| `/tenants`             | `/admin/tenants`             | ADMIN       |
+| `/tenants/{id}`        | `/admin/tenants/{id}`        | ADMIN       |
+| `/tenants/{id}/status` | `/admin/tenants/{id}/status` | ADMIN       |
 
 ## New Endpoints Available
 
@@ -133,23 +114,6 @@ ENDPOINTS.CLIENT.ORDERS.CREATE;
 // Shopping cart
 ENDPOINTS.CLIENT.CART.GET;
 ENDPOINTS.CLIENT.CART.ADD_ITEM;
-```
-
-### Control Routes (Super Admin)
-
-```typescript
-// System management
-ENDPOINTS.CONTROL.SYSTEM.HEALTH;
-ENDPOINTS.CONTROL.SYSTEM.METRICS;
-ENDPOINTS.CONTROL.SYSTEM.BACKUP;
-
-// Global user management
-ENDPOINTS.CONTROL.USERS.LIST;
-ENDPOINTS.CONTROL.USERS.ANALYTICS;
-
-// Billing management
-ENDPOINTS.CONTROL.BILLING.SUBSCRIPTIONS;
-ENDPOINTS.CONTROL.BILLING.REVENUE_ANALYTICS;
 ```
 
 ## Backward Compatibility

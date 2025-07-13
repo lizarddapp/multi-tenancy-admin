@@ -17,15 +17,6 @@ export const ADMIN_ROUTES = {
     PROFILE: "profile",
   },
 
-  // Control routes (super admin only)
-  CONTROL: {
-    TENANTS: "admin/tenants",
-    SYSTEM: "admin/system",
-    USERS: "admin/users",
-    BILLING: "admin/billing",
-    AUDIT: "admin/audit",
-  },
-
   // Global routes (no tenant context)
   GLOBAL: {
     LOGIN: "/login",

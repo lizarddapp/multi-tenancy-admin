@@ -123,7 +123,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
     // Show upgrade banner for any of these conditions
     return !isActive || isTrialExpired || isPastDue || isCancelled || isFree;
-  }, [currentTenant, billingData, billingLoading]);
+  }, [currentTenant, billingData]);
 
   // Show minimal sidebar while permissions are loading
   if (isLoading) {

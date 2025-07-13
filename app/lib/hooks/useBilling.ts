@@ -23,7 +23,7 @@ export const useBilling = (params?: {
   return useQuery({
     queryKey: [...QUERY_KEYS.ADMIN.BILLING, params],
     queryFn: () => billingService.list(params),
-    staleTime: STALE_TIME,
+    staleTime: STALE_TIME.MEDIUM,
   });
 };
 
@@ -32,7 +32,7 @@ export const useBillingRecord = (id: number) => {
   return useQuery({
     queryKey: [...QUERY_KEYS.ADMIN.BILLING, id],
     queryFn: () => billingService.get(id),
-    staleTime: STALE_TIME,
+    staleTime: STALE_TIME.MEDIUM,
     enabled: !!id,
   });
 };
@@ -42,7 +42,7 @@ export const useCurrentBilling = () => {
   return useQuery({
     queryKey: [...QUERY_KEYS.BILLING.CURRENT],
     queryFn: () => billingService.getCurrent(),
-    staleTime: STALE_TIME,
+    staleTime: STALE_TIME.MEDIUM,
   });
 };
 
@@ -51,7 +51,7 @@ export const useBillingByTenant = (tenantId: number) => {
   return useQuery({
     queryKey: [...QUERY_KEYS.ADMIN.BILLING, "tenant", tenantId],
     queryFn: () => billingService.getByTenant(tenantId),
-    staleTime: STALE_TIME,
+    staleTime: STALE_TIME.MEDIUM,
     enabled: !!tenantId,
   });
 };
@@ -61,7 +61,7 @@ export const useExpiringTrials = (days: number = 7) => {
   return useQuery({
     queryKey: [...QUERY_KEYS.ADMIN.BILLING, "expiring-trials", days],
     queryFn: () => billingService.getExpiringTrials(days),
-    staleTime: STALE_TIME,
+    staleTime: STALE_TIME.MEDIUM,
   });
 };
 
@@ -70,7 +70,7 @@ export const useOverdueSubscriptions = () => {
   return useQuery({
     queryKey: [...QUERY_KEYS.ADMIN.BILLING, "overdue-subscriptions"],
     queryFn: () => billingService.getOverdueSubscriptions(),
-    staleTime: STALE_TIME,
+    staleTime: STALE_TIME.MEDIUM,
   });
 };
 
@@ -86,7 +86,9 @@ export const useCreateBilling = () => {
     },
     onError: (error: any) => {
       console.error("Create billing failed:", error);
-      toast.error(error.response?.data?.message || "Failed to create billing record");
+      toast.error(
+        error.response?.data?.message || "Failed to create billing record"
+      );
     },
   });
 };
@@ -105,7 +107,9 @@ export const useUpdateBilling = () => {
     },
     onError: (error: any) => {
       console.error("Update billing failed:", error);
-      toast.error(error.response?.data?.message || "Failed to update billing record");
+      toast.error(
+        error.response?.data?.message || "Failed to update billing record"
+      );
     },
   });
 };
@@ -115,8 +119,13 @@ export const useCancelBilling = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, cancelAtPeriodEnd }: { id: number; cancelAtPeriodEnd?: boolean }) =>
-      billingService.cancel(id, cancelAtPeriodEnd),
+    mutationFn: ({
+      id,
+      cancelAtPeriodEnd,
+    }: {
+      id: number;
+      cancelAtPeriodEnd?: boolean;
+    }) => billingService.cancel(id, cancelAtPeriodEnd),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ADMIN.BILLING });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.BILLING.CURRENT });
@@ -124,7 +133,9 @@ export const useCancelBilling = () => {
     },
     onError: (error: any) => {
       console.error("Cancel billing failed:", error);
-      toast.error(error.response?.data?.message || "Failed to cancel billing subscription");
+      toast.error(
+        error.response?.data?.message || "Failed to cancel billing subscription"
+      );
     },
   });
 };
@@ -142,7 +153,10 @@ export const useSuspendBilling = () => {
     },
     onError: (error: any) => {
       console.error("Suspend billing failed:", error);
-      toast.error(error.response?.data?.message || "Failed to suspend billing subscription");
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to suspend billing subscription"
+      );
     },
   });
 };
@@ -160,7 +174,10 @@ export const useReactivateBilling = () => {
     },
     onError: (error: any) => {
       console.error("Reactivate billing failed:", error);
-      toast.error(error.response?.data?.message || "Failed to reactivate billing subscription");
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to reactivate billing subscription"
+      );
     },
   });
 };
@@ -177,7 +194,9 @@ export const useDeleteBilling = () => {
     },
     onError: (error: any) => {
       console.error("Delete billing failed:", error);
-      toast.error(error.response?.data?.message || "Failed to delete billing record");
+      toast.error(
+        error.response?.data?.message || "Failed to delete billing record"
+      );
     },
   });
 };

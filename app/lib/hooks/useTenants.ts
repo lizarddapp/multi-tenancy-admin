@@ -16,7 +16,7 @@ export const useTenants = (params?: {
   status?: string;
 }) => {
   return useQuery({
-    queryKey: [...QUERY_KEYS.CONTROL.TENANTS, params],
+    queryKey: [...QUERY_KEYS.ADMIN.TENANTS, params],
     queryFn: () => tenantsService.list(params),
   });
 };
@@ -24,19 +24,9 @@ export const useTenants = (params?: {
 // Get single tenant
 export const useTenant = (id: number) => {
   return useQuery({
-    queryKey: QUERY_KEYS.CONTROL.TENANT(id),
+    queryKey: [...QUERY_KEYS.ADMIN.TENANTS, id],
     queryFn: () => tenantsService.get(id),
     enabled: !!id,
-  });
-};
-
-// Get tenant analytics
-export const useTenantAnalytics = (id: number) => {
-  return useQuery({
-    queryKey: QUERY_KEYS.CONTROL.TENANT_ANALYTICS(id),
-    queryFn: () => tenantsService.getAnalytics(id),
-    enabled: !!id,
-    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
   });
 };
 
@@ -47,7 +37,7 @@ export const useCreateTenant = () => {
   return useMutation({
     mutationFn: (data: CreateTenantRequest) => tenantsService.create(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.CONTROL.TENANTS });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ADMIN.TENANTS });
       toast.success("Tenant created successfully");
     },
     onError: (error: any) => {
@@ -87,9 +77,9 @@ export const useUpdateTenant = () => {
     mutationFn: ({ id, data }: { id: number; data: UpdateTenantRequest }) =>
       tenantsService.update(id, data),
     onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.CONTROL.TENANTS });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ADMIN.TENANTS });
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.CONTROL.TENANT(id),
+        queryKey: [...QUERY_KEYS.ADMIN.TENANTS, id],
       });
       toast.success("Tenant updated successfully");
     },
@@ -107,7 +97,7 @@ export const useDeleteTenant = () => {
   return useMutation({
     mutationFn: (id: number) => tenantsService.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.CONTROL.TENANTS });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ADMIN.TENANTS });
       toast.success("Tenant deleted successfully");
     },
     onError: (error: any) => {
@@ -130,9 +120,9 @@ export const useUpdateTenantStatus = () => {
       data: UpdateTenantStatusRequest;
     }) => tenantsService.updateStatus(id, data),
     onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.CONTROL.TENANTS });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ADMIN.TENANTS });
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.CONTROL.TENANT(id),
+        queryKey: [...QUERY_KEYS.ADMIN.TENANTS, id],
       });
       toast.success("Tenant status updated successfully");
     },
