@@ -62,6 +62,13 @@ export const tenantsService = {
     return api.post<{ tenant: Tenant }>(ENDPOINTS.CONTROL.TENANTS.CREATE, data);
   },
 
+  // Create new tenant with auto-generated slug (simplified creation)
+  createSimple: async (data: {
+    name: string;
+  }): Promise<ApiResponse<Tenant>> => {
+    return api.post<Tenant>(ENDPOINTS.ADMIN.TENANTS.CREATE_SIMPLE, data);
+  },
+
   // Update tenant
   update: async (
     id: number,

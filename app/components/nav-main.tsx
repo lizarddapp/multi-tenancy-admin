@@ -17,6 +17,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "~/components/ui/sidebar";
+import { Badge } from "~/components/ui/badge";
 import { TenantLink } from "./tenant-link";
 
 export function NavMain({
@@ -27,6 +28,7 @@ export function NavMain({
     url: string;
     icon?: LucideIcon;
     isActive?: boolean;
+    badge?: string;
     items?: {
       title: string;
       url: string;
@@ -49,6 +51,11 @@ export function NavMain({
                 <SidebarMenuButton tooltip={item.title}>
                   {item.icon && <item.icon />}
                   <span>{item.title}</span>
+                  {item.badge && (
+                    <Badge variant="secondary" className="ml-auto mr-2 text-xs">
+                      {item.badge}
+                    </Badge>
+                  )}
                   <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                 </SidebarMenuButton>
               </CollapsibleTrigger>

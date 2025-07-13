@@ -1,5 +1,7 @@
 // Base URL for the API
-export const BASE_URL = "http://localhost:3333/api/v1";
+export const BASE_URL = `${
+  import.meta.env.VITE_API_URL || "http://localhost:3333"
+}/api/v1`;
 
 // API Endpoints organized by route groups
 export const ENDPOINTS = {
@@ -44,6 +46,42 @@ export const ENDPOINTS = {
       BULK_ASSIGN: (userId: string) =>
         `/admin/users/${userId}/roles/bulk-assign`,
     },
+
+    // Tenant Management (Admin)
+    TENANTS: {
+      CREATE_SIMPLE: "/admin/tenants/create-simple",
+    },
+
+    // Billing Management (Admin)
+    BILLING: {
+      LIST: "/admin/billing",
+      CREATE: "/admin/billing",
+      GET: (id: number) => `/admin/billing/${id}`,
+      UPDATE: (id: number) => `/admin/billing/${id}`,
+      DELETE: (id: number) => `/admin/billing/${id}`,
+      CANCEL: (id: number) => `/admin/billing/${id}/cancel`,
+      SUSPEND: (id: number) => `/admin/billing/${id}/suspend`,
+      REACTIVATE: (id: number) => `/admin/billing/${id}/reactivate`,
+      GET_BY_TENANT: (tenantId: number) => `/admin/billing/tenant/${tenantId}`,
+      EXPIRING_TRIALS: "/admin/billing/reports/expiring-trials",
+      OVERDUE_SUBSCRIPTIONS: "/admin/billing/reports/overdue-subscriptions",
+    },
+  },
+
+  // Tenant-scoped endpoints
+  BILLING: {
+    CURRENT: "/admin/billing/current",
+  },
+
+  // Public pricing plans endpoints (no auth required)
+  PRICING_PLANS: {
+    LIST: "/pricing-plans",
+    POPULAR: "/pricing-plans/popular",
+    COMPARISON: "/pricing-plans/comparison",
+    GET: (slug: string) => `/pricing-plans/${slug}`,
+    PRICE: (slug: string) => `/pricing-plans/${slug}/price`,
+    FEATURES: (slug: string) => `/pricing-plans/${slug}/features`,
+    UPGRADE_OPTIONS: (slug: string) => `/pricing-plans/${slug}/upgrade-options`,
   },
 
   // =================================================================
@@ -214,6 +252,31 @@ export const QUERY_KEYS = {
       ["admin", "users", userId, "roles"] as const,
     USER_PERMISSIONS: (userId: string) =>
       ["admin", "users", userId, "permissions"] as const,
+
+    // Billing
+    BILLING: ["admin", "billing"] as const,
+  },
+
+  // =================================================================
+  // TENANT-SCOPED QUERY KEYS
+  // =================================================================
+  BILLING: {
+    CURRENT: ["billing", "current"] as const,
+  },
+
+  // =================================================================
+  // PUBLIC QUERY KEYS (No auth required)
+  // =================================================================
+  PRICING_PLANS: {
+    LIST: ["pricing-plans"] as const,
+    POPULAR: ["pricing-plans", "popular"] as const,
+    COMPARISON: ["pricing-plans", "comparison"] as const,
+    PLAN: (slug: string) => ["pricing-plans", slug] as const,
+    PRICE: (slug: string, cycle?: string) =>
+      ["pricing-plans", slug, "price", cycle] as const,
+    FEATURES: (slug: string) => ["pricing-plans", slug, "features"] as const,
+    UPGRADE_OPTIONS: (slug: string) =>
+      ["pricing-plans", slug, "upgrade-options"] as const,
   },
 
   // =================================================================

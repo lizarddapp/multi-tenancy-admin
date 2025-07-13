@@ -50,6 +50,21 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+// Helper function to check if current route uses tenant layout
+// Examples:
+// - "/tenant1" -> true (tenant route)
+// - "/tenant1/dashboard" -> true (tenant route)
+// - "/_auth/login" -> false (auth route)
+// - "/_control/tenants" -> false (control route)
+// - "/" -> false (root route)
+function checkIsTenantRoute(pathname: string): boolean {
+  return (
+    !!pathname.match(/^\/[^\/]+(?:\/.*)?$/) &&
+    !pathname.startsWith("/_auth") &&
+    !pathname.startsWith("/_control")
+  );
+}
+
 // Component to handle authentication checks
 function AuthenticatedApp() {
   const { isAuthenticated, isLoading } = useSession();
@@ -60,10 +75,14 @@ function AuthenticatedApp() {
   const { data: tenantsResponse } = useAvailableTenants();
 
   useEffect(() => {
-    // Don't redirect if we're already on the login page
+    // Check if current route is a tenant route (uses tenant layout)
+    const isCurrentlyTenantRoute = checkIsTenantRoute(location.pathname);
+
+    // Only redirect to login for tenant routes when not authenticated
     if (
       !isLoading &&
       !isAuthenticated &&
+      isCurrentlyTenantRoute &&
       location.pathname !== "/_auth/login"
     ) {
       navigate("/_auth/login");
@@ -116,13 +135,16 @@ function AuthenticatedApp() {
     );
   }
 
-  // Allow login page to render even when not authenticated
-  if (!isAuthenticated && location.pathname === "/_auth/login") {
+  // Check if current route is a tenant route (uses tenant layout)
+  const isCurrentlyTenantRoute = checkIsTenantRoute(location.pathname);
+
+  // Allow unauthenticated routes (/_auth/* and /_control/*) to render
+  if (!isAuthenticated && !isCurrentlyTenantRoute) {
     return <Outlet />;
   }
 
-  // Don't render protected routes if not authenticated
-  if (!isAuthenticated) {
+  // Don't render tenant routes if not authenticated
+  if (!isAuthenticated && isCurrentlyTenantRoute) {
     return null;
   }
 

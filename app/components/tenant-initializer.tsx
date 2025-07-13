@@ -188,9 +188,9 @@ export function TenantInitializer({ children }: TenantInitializerProps) {
         console.log("Redirecting to tenant route:", newPath);
         navigate(newPath, { replace: true });
       } else {
-        // No tenants available, redirect to login
-        console.log("No tenants available, redirecting to login");
-        navigate("/_auth/login", { replace: true });
+        // No tenants available, redirect to tenant creation
+        console.log("No tenants available, redirecting to tenant creation");
+        navigate("/_auth/create-tenant", { replace: true });
       }
 
       setIsInitialized(false);
@@ -210,6 +210,10 @@ export function TenantInitializer({ children }: TenantInitializerProps) {
           const newPath = `/${targetTenant.slug}/dashboard`;
           console.log("Redirecting to tenant route:", newPath);
           navigate(newPath, { replace: true });
+        } else {
+          // No tenants available, redirect to tenant creation
+          console.log("No tenants available, redirecting to tenant creation");
+          navigate("/_auth/create-tenant", { replace: true });
         }
       }
 

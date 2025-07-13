@@ -1,6 +1,7 @@
 import { useSession } from "~/lib/providers/SessionProvider";
 import { useMyPermissions } from "./useAuth";
 import type { AuthUser } from "~/types/dashboard";
+import { UserRole } from "~/types/dashboard";
 
 /**
  * Hook for checking user permissions
@@ -80,7 +81,7 @@ export function usePermissions() {
    * Check if user is super admin
    */
   const isSuperAdmin = (): boolean => {
-    return hasRole("super_admin");
+    return hasRole(UserRole.SUPER_ADMIN);
   };
 
   /**

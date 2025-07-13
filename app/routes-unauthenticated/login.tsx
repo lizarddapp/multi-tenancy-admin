@@ -255,7 +255,15 @@ export default function Login() {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <Button variant="outline" disabled={isLoading}>
+              <Button
+                variant="outline"
+                disabled={isLoading}
+                onClick={() => {
+                  window.location.href = `${
+                    import.meta.env.VITE_API_URL
+                  }/api/v1/admin/auth/google/redirect`;
+                }}
+              >
                 <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                   <path
                     fill="currentColor"

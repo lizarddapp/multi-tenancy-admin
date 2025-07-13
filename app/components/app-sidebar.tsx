@@ -1,18 +1,10 @@
 import * as React from "react";
-import {
-  LayoutDashboard,
-  Users,
-  Settings,
-  BarChart3,
-  Package,
-  Building,
-  CreditCard,
-  Shield,
-} from "lucide-react";
+import { LayoutDashboard, Users, CreditCard } from "lucide-react";
 
 import { NavMain } from "~/components/nav-main";
 import { NavUser } from "~/components/nav-user";
 import { TeamSwitcher } from "~/components/team-switcher";
+import { UpgradeBanner } from "~/components/upgrade-banner";
 import {
   Sidebar,
   SidebarContent,
@@ -22,6 +14,9 @@ import {
 } from "~/components/ui/sidebar";
 import { useSession } from "~/lib/providers/SessionProvider";
 import { usePermissions, RESOURCES } from "~/lib/hooks/usePermissions";
+import { UserRole } from "~/types/dashboard";
+import { useCurrentBilling } from "~/lib/hooks/useBilling";
+import { useTenant } from "~/lib/hooks/useTenant";
 
 // Multi-tenancy admin navigation structure
 const getNavData = (
@@ -42,34 +37,7 @@ const getNavData = (
       icon: LayoutDashboard,
       isActive: true,
     },
-    // Tenants section - visible if user can read tenants
-    ...(canAccess(RESOURCES.TENANTS, "read")
-      ? [
-          {
-            title: "Tenants",
-            url: "/tenants",
-            icon: Building,
-            items: [
-              {
-                title: "All Tenants",
-                url: "/tenants",
-              },
-              {
-                title: "Active Tenants",
-                url: "/tenants?status=active",
-              },
-              {
-                title: "Trial Tenants",
-                url: "/tenants?status=trial",
-              },
-              {
-                title: "Inactive Tenants",
-                url: "/tenants?status=inactive",
-              },
-            ],
-          },
-        ]
-      : []),
+
     // Users section - visible if user can read users
     ...(canAccess(RESOURCES.USERS, "read")
       ? [
@@ -84,76 +52,21 @@ const getNavData = (
               },
               {
                 title: "Admins",
-                url: "/users?role=admin",
+                url: `/users?role=${UserRole.ADMIN}`,
               },
               {
                 title: "Managers",
-                url: "/users?role=manager",
+                url: `/users?role=${UserRole.MANAGER}`,
               },
               {
                 title: "Staff",
-                url: "/users?role=staff",
+                url: `/users?role=${UserRole.VIEWER}`,
               },
             ],
           },
         ]
       : []),
-    // Analytics section - visible if user can read analytics
-    ...(canAccess(RESOURCES.ANALYTICS, "read")
-      ? [
-          {
-            title: "Analytics",
-            url: "/analytics",
-            icon: BarChart3,
-            items: [
-              {
-                title: "Overview",
-                url: "/analytics",
-              },
-              {
-                title: "Revenue",
-                url: "/analytics/revenue",
-              },
-              {
-                title: "Usage",
-                url: "/analytics/usage",
-              },
-              {
-                title: "Performance",
-                url: "/analytics/performance",
-              },
-            ],
-          },
-        ]
-      : []),
-    // Products section - visible if user can read products
-    ...(canAccess(RESOURCES.PRODUCTS, "read")
-      ? [
-          {
-            title: "Products",
-            url: "/products",
-            icon: Package,
-            items: [
-              {
-                title: "All Products",
-                url: "/products",
-              },
-              {
-                title: "Plans",
-                url: "/products/plans",
-              },
-              {
-                title: "Features",
-                url: "/products/features",
-              },
-              {
-                title: "Pricing",
-                url: "/products/pricing",
-              },
-            ],
-          },
-        ]
-      : []),
+
     // Billing section - visible if user can read billing
     ...(canAccess(RESOURCES.BILLING, "read")
       ? [
@@ -182,69 +95,35 @@ const getNavData = (
           },
         ]
       : []),
-    // Security section - visible if user can read roles or has system access
-    ...(canAccess(RESOURCES.ROLES, "read") ||
-    canAccess(RESOURCES.SYSTEM, "manage")
-      ? [
-          {
-            title: "Security",
-            url: "/security",
-            icon: Shield,
-            items: [
-              {
-                title: "Roles & Permissions",
-                url: "/security/roles",
-              },
-              {
-                title: "Access Logs",
-                url: "/security/logs",
-              },
-              {
-                title: "API Keys",
-                url: "/security/api-keys",
-              },
-              {
-                title: "Audit Trail",
-                url: "/security/audit",
-              },
-            ],
-          },
-        ]
-      : []),
-    // Settings section - visible if user has system management access
-    ...(canAccess(RESOURCES.SYSTEM, "manage")
-      ? [
-          {
-            title: "Settings",
-            url: "/settings",
-            icon: Settings,
-            items: [
-              {
-                title: "General",
-                url: "/settings",
-              },
-              {
-                title: "Integrations",
-                url: "/settings/integrations",
-              },
-              {
-                title: "Notifications",
-                url: "/settings/notifications",
-              },
-              {
-                title: "System",
-                url: "/settings/system",
-              },
-            ],
-          },
-        ]
-      : []),
   ],
 });
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useSession();
   const { canAccess, isLoading, error } = usePermissions();
+  const { currentTenant } = useTenant();
+  const { data: billingData, isLoading: billingLoading } = useCurrentBilling();
+
+  // Determine if tenant needs upgrade/billing attention
+  const needsUpgrade = React.useMemo(() => {
+    if (!currentTenant || billingLoading) return false;
+
+    const billing = billingData?.data?.data;
+
+    // No billing record means needs setup
+    if (!billing) return true;
+
+    // Check various conditions that require attention
+    const isActive = billing.status === "active";
+    const isTrialExpired =
+      billing.trialEnd && new Date(billing.trialEnd) < new Date();
+    const isPastDue = billing.status === "past_due";
+    const isCancelled = billing.status === "cancelled";
+    const isFree = billing.plan === "free";
+
+    // Show upgrade banner for any of these conditions
+    return !isActive || isTrialExpired || isPastDue || isCancelled || isFree;
+  }, [currentTenant, billingData, billingLoading]);
 
   // Show minimal sidebar while permissions are loading
   if (isLoading) {
@@ -320,6 +199,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
+        {needsUpgrade && (
+          <div className="px-3 py-2">
+            <UpgradeBanner />
+          </div>
+        )}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />

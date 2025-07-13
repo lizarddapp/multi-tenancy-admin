@@ -48,6 +48,7 @@ interface SessionContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string, remember?: boolean) => Promise<void>;
+  loginWithGoogle: (authData: any) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => void;
 }
@@ -104,6 +105,32 @@ export function SessionProvider({ children }: SessionProviderProps) {
     }
   };
 
+  // Login with Google function
+  const loginWithGoogle = async (authData: any): Promise<void> => {
+    try {
+      // Extract token from Google auth response
+      const { token } = authData;
+
+      if (!token) {
+        throw new Error("No token received from Google authentication");
+      }
+
+      // Store token
+      tokenStorage.setToken(token, false);
+
+      // Update hasToken state to trigger re-render
+      setHasToken(true);
+
+      // Invalidate and refetch user query
+      await queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.ADMIN.AUTH_USER,
+      });
+    } catch (error) {
+      console.error("Google login failed:", error);
+      throw error;
+    }
+  };
+
   // Logout function
   const logout = async (): Promise<void> => {
     try {
@@ -138,6 +165,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
     isLoading,
     isAuthenticated,
     login,
+    loginWithGoogle,
     logout,
     refreshUser,
   };

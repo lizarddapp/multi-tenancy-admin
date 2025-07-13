@@ -57,6 +57,28 @@ export const useCreateTenant = () => {
   });
 };
 
+// Create tenant with auto-generated slug (simplified creation)
+export const useCreateTenantSimple = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: { name: string }) => tenantsService.createSimple(data),
+    onSuccess: () => {
+      // Invalidate available tenants to refresh the list
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.ADMIN.AUTH_AVAILABLE_TENANTS,
+      });
+      toast.success("Organization created successfully");
+    },
+    onError: (error: any) => {
+      console.error("Create tenant failed:", error);
+      toast.error(
+        error.response?.data?.message || "Failed to create organization"
+      );
+    },
+  });
+};
+
 // Update tenant mutation
 export const useUpdateTenant = () => {
   const queryClient = useQueryClient();

@@ -127,6 +127,26 @@ export enum UserStatus {
   SUSPENDED = "suspended",
 }
 
+// Billing enums
+export enum BillingStatus {
+  ACTIVE = "active",
+  SUSPENDED = "suspended",
+  CANCELLED = "cancelled",
+  PAST_DUE = "past_due",
+}
+
+export enum BillingPlan {
+  FREE = "free",
+  BASIC = "basic",
+  PRO = "pro",
+  ENTERPRISE = "enterprise",
+}
+
+export enum BillingCycle {
+  MONTHLY = "monthly",
+  YEARLY = "yearly",
+}
+
 // User management request types
 export interface CreateUserRequest {
   firstName: string;
@@ -198,6 +218,82 @@ export interface UpdateRoleRequest {
 
 export interface AssignPermissionsRequest {
   permissionIds: number[];
+}
+
+// Billing interfaces
+export interface Billing {
+  id: number;
+  tenantId: number;
+  plan: BillingPlan;
+  status: BillingStatus;
+  cycle: BillingCycle;
+  amount: number; // Amount in cents
+  currency: string;
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
+  stripePriceId?: string;
+  currentPeriodStart?: string;
+  currentPeriodEnd?: string;
+  trialStart?: string;
+  trialEnd?: string;
+  cancelledAt?: string;
+  cancelAtPeriodEnd: boolean;
+  maxUsers?: number;
+  maxStorage?: number; // Storage in GB
+  features?: string | string[]; // JSON string from backend or parsed array
+  createdAt: string;
+  updatedAt: string;
+  tenant?: Tenant;
+}
+
+export interface CreateBillingRequest {
+  tenantId: number;
+  plan: BillingPlan;
+  cycle: BillingCycle;
+  amount?: number;
+  currency?: string;
+  maxUsers?: number;
+  maxStorage?: number;
+  features?: string[];
+  trialDays?: number;
+}
+
+export interface UpdateBillingRequest {
+  plan?: BillingPlan;
+  cycle?: BillingCycle;
+  amount?: number;
+  currency?: string;
+  maxUsers?: number;
+  maxStorage?: number;
+  features?: string[];
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
+  stripePriceId?: string;
+}
+
+export interface CreateBillingRequest {
+  tenantId: number;
+  plan: BillingPlan;
+  cycle: BillingCycle;
+  amount?: number;
+  currency?: string;
+  maxUsers?: number;
+  maxStorage?: number;
+  features?: string[];
+  trialDays?: number;
+}
+
+export interface UpdateBillingRequest {
+  plan?: BillingPlan;
+  cycle?: BillingCycle;
+  amount?: number;
+  currency?: string;
+  maxUsers?: number;
+  maxStorage?: number;
+  features?: string[];
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
+  stripePriceId?: string;
 }
 
 // Permission grouping for UI

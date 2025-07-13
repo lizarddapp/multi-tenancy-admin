@@ -38,10 +38,14 @@ export function TenantForm({
 
     if (!formData.name.trim()) {
       newErrors.name = "Name is required";
+    } else if (formData.name.length < 2 || formData.name.length > 100) {
+      newErrors.name = "Name must be between 2 and 100 characters";
     }
 
     if (!formData.slug.trim()) {
       newErrors.slug = "Slug is required";
+    } else if (formData.slug.length < 2 || formData.slug.length > 50) {
+      newErrors.slug = "Slug must be between 2 and 50 characters";
     } else if (!/^[a-z0-9-]+$/.test(formData.slug)) {
       newErrors.slug =
         "Slug can only contain lowercase letters, numbers, and hyphens";
