@@ -7,7 +7,7 @@ import type {
   UpdateUserRequest,
   UpdateUserStatusRequest,
   InviteUserRequest,
-} from "~/types/dashboard";
+} from "~/types";
 
 export interface UsersListResponse {
   data: User[];

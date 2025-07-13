@@ -9,13 +9,16 @@ import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
 import { Check, Users, HardDrive, Code, FolderOpen } from "lucide-react";
-import { BillingCycle } from "~/types/dashboard";
-import type { PricingPlan, PlanFeature } from "~/lib/api/services/pricing-plans";
+import { BillingCycle } from "~/types";
+import type {
+  PricingPlan,
+  PlanFeature,
+} from "~/lib/api/services/pricing-plans";
 import { formatCurrency } from "~/lib/utils";
-import { 
-  getPlanComparisonData, 
-  formatPlanLimit, 
-  getFormattedPlanFeatures 
+import {
+  getPlanComparisonData,
+  formatPlanLimit,
+  getFormattedPlanFeatures,
 } from "~/lib/utils/plan-utils";
 
 interface PlanCardProps {
@@ -53,13 +56,13 @@ export function PlanCard({
 
   const getButtonText = () => {
     if (isLoading) return "Processing...";
-    
+
     switch (actionType) {
-      case 'current':
+      case "current":
         return "✓ Current Plan";
-      case 'upgrade':
+      case "upgrade":
         return `Upgrade to ${plan.name}`;
-      case 'downgrade':
+      case "downgrade":
         return `Downgrade to ${plan.name}`;
       default:
         return "Contact Sales";
@@ -68,11 +71,11 @@ export function PlanCard({
 
   const getButtonVariant = () => {
     switch (actionType) {
-      case 'current':
+      case "current":
         return "outline" as const;
-      case 'upgrade':
-        return plan.isPopular ? "default" as const : "secondary" as const;
-      case 'downgrade':
+      case "upgrade":
+        return plan.isPopular ? ("default" as const) : ("secondary" as const);
+      case "downgrade":
         return "outline" as const;
       default:
         return "outline" as const;
@@ -81,12 +84,12 @@ export function PlanCard({
 
   const getButtonClassName = () => {
     const baseClasses = "w-full";
-    
+
     switch (actionType) {
-      case 'current':
+      case "current":
         return `${baseClasses} border-primary text-primary bg-primary/5`;
-      case 'upgrade':
-        return plan.isPopular 
+      case "upgrade":
+        return plan.isPopular
           ? `${baseClasses} bg-primary hover:bg-primary/90`
           : `${baseClasses} bg-secondary hover:bg-secondary/80 text-secondary-foreground`;
       default:
@@ -95,9 +98,7 @@ export function PlanCard({
   };
 
   const cardClassName = `relative transition-all duration-200 hover:shadow-lg ${
-    plan.isPopular
-      ? "border-primary shadow-md scale-105"
-      : "border-border"
+    plan.isPopular ? "border-primary shadow-md scale-105" : "border-border"
   } ${isCurrent ? "ring-2 ring-primary bg-primary/5" : ""} ${className}`;
 
   return (
@@ -116,11 +117,11 @@ export function PlanCard({
             <Icon className="h-6 w-6 text-primary" />
           </div>
         </div>
-        
+
         <CardTitle className="text-xl font-semibold mb-2">
           {plan.name}
         </CardTitle>
-        
+
         <CardDescription className="text-sm text-muted-foreground mb-4">
           {plan.description}
         </CardDescription>
@@ -154,7 +155,7 @@ export function PlanCard({
                   {formatPlanLimit(plan.limits.maxUsers)}
                 </span>
               </div>
-              
+
               <div className="flex items-center justify-between text-sm">
                 <div className="flex items-center gap-2">
                   <HardDrive className="h-4 w-4 text-primary" />
@@ -164,7 +165,7 @@ export function PlanCard({
                   {formatPlanLimit(plan.limits.maxStorage, "GB")}
                 </span>
               </div>
-              
+
               {plan.limits.maxApiCalls && (
                 <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
@@ -176,7 +177,7 @@ export function PlanCard({
                   </span>
                 </div>
               )}
-              
+
               {plan.limits.maxProjects && (
                 <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
@@ -201,37 +202,48 @@ export function PlanCard({
               What's included:
             </h4>
           )}
-          
+
           {formattedFeatures
-            .slice(0, variant === "compact" ? 3 : variant === "detailed" ? 8 : 6)
-            .map((feature: PlanFeature & { displayName: string }, index: number) => (
-              <div
-                key={index}
-                className="flex items-start gap-2 text-sm"
-              >
-                <Check
-                  className={`h-4 w-4 mt-0.5 flex-shrink-0 ${
-                    feature.included
-                      ? "text-green-500"
-                      : "text-gray-300"
-                  }`}
-                />
-                <span
-                  className={
-                    feature.included 
-                      ? "text-foreground" 
-                      : "text-muted-foreground line-through"
-                  }
-                  title={feature.description}
-                >
-                  {feature.displayName}
-                </span>
-              </div>
-            ))}
-          
-          {plan.features.length > (variant === "compact" ? 3 : variant === "detailed" ? 8 : 6) && (
+            .slice(
+              0,
+              variant === "compact" ? 3 : variant === "detailed" ? 8 : 6
+            )
+            .map(
+              (
+                feature: PlanFeature & { displayName: string },
+                index: number
+              ) => (
+                <div key={index} className="flex items-start gap-2 text-sm">
+                  <Check
+                    className={`h-4 w-4 mt-0.5 flex-shrink-0 ${
+                      feature.included ? "text-green-500" : "text-gray-300"
+                    }`}
+                  />
+                  <span
+                    className={
+                      feature.included
+                        ? "text-foreground"
+                        : "text-muted-foreground line-through"
+                    }
+                    title={feature.description}
+                  >
+                    {feature.displayName}
+                  </span>
+                </div>
+              )
+            )}
+
+          {plan.features.length >
+            (variant === "compact" ? 3 : variant === "detailed" ? 8 : 6) && (
             <div className="text-xs text-muted-foreground pt-1">
-              +{plan.features.length - (variant === "compact" ? 3 : variant === "detailed" ? 8 : 6)} more features
+              +
+              {plan.features.length -
+                (variant === "compact"
+                  ? 3
+                  : variant === "detailed"
+                  ? 8
+                  : 6)}{" "}
+              more features
             </div>
           )}
         </div>
@@ -242,11 +254,13 @@ export function PlanCard({
             variant={getButtonVariant()}
             className={getButtonClassName()}
             onClick={() => onPlanSelect(plan.slug)}
-            disabled={isLoading || actionType === 'current' || actionType === 'contact'}
+            disabled={
+              isLoading || actionType === "current" || actionType === "contact"
+            }
           >
             {getButtonText()}
           </Button>
-          
+
           {showTrialInfo && plan.trialDays > 0 && !isCurrent && (
             <p className="text-xs text-muted-foreground text-center mt-2">
               {plan.trialDays}-day free trial

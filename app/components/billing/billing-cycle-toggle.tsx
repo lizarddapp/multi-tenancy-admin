@@ -1,7 +1,7 @@
 import { Switch } from "~/components/ui/switch";
 import { Label } from "~/components/ui/label";
 import { Badge } from "~/components/ui/badge";
-import { BillingCycle } from "~/types/dashboard";
+import { BillingCycle } from "~/types";
 
 interface BillingCycleToggleProps {
   selectedCycle: BillingCycle;
@@ -33,18 +33,20 @@ export function BillingCycleToggle({
   };
 
   return (
-    <div className={`flex items-center justify-center ${sizeClasses[size]} ${paddingClasses[size]} ${className}`}>
-      <Label 
-        htmlFor="cycle-toggle" 
+    <div
+      className={`flex items-center justify-center ${sizeClasses[size]} ${paddingClasses[size]} ${className}`}
+    >
+      <Label
+        htmlFor="cycle-toggle"
         className={`cursor-pointer transition-colors ${
-          selectedCycle === BillingCycle.MONTHLY 
-            ? "font-semibold text-foreground" 
+          selectedCycle === BillingCycle.MONTHLY
+            ? "font-semibold text-foreground"
             : "text-muted-foreground"
         }`}
       >
         Monthly
       </Label>
-      
+
       <Switch
         id="cycle-toggle"
         checked={selectedCycle === BillingCycle.YEARLY}
@@ -53,19 +55,19 @@ export function BillingCycleToggle({
         }
         className="data-[state=checked]:bg-primary"
       />
-      
-      <Label 
-        htmlFor="cycle-toggle" 
+
+      <Label
+        htmlFor="cycle-toggle"
         className={`cursor-pointer transition-colors ${
-          selectedCycle === BillingCycle.YEARLY 
-            ? "font-semibold text-foreground" 
+          selectedCycle === BillingCycle.YEARLY
+            ? "font-semibold text-foreground"
             : "text-muted-foreground"
         }`}
       >
         Yearly
         {showSavings && (
-          <Badge 
-            variant="secondary" 
+          <Badge
+            variant="secondary"
             className={`ml-2 bg-green-100 text-green-700 border-green-200 ${
               size === "sm" ? "text-xs px-1.5 py-0.5" : ""
             }`}

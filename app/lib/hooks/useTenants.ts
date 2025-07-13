@@ -5,7 +5,7 @@ import type {
   CreateTenantRequest,
   UpdateTenantRequest,
   UpdateTenantStatusRequest,
-} from "~/types/dashboard";
+} from "~/types";
 import { toast } from "sonner";
 
 // Get all tenants

@@ -7,7 +7,7 @@ import type {
   CreateRoleRequest,
   UpdateRoleRequest,
   AssignPermissionsRequest,
-} from "~/types/dashboard";
+} from "~/types";
 
 export interface RolesListResponse {
   data: Role[];

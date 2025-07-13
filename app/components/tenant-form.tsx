@@ -4,12 +4,8 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
 import { DialogFooter } from "~/components/ui/dialog";
-import type {
-  Tenant,
-  CreateTenantRequest,
-  UpdateTenantRequest,
-} from "~/types/dashboard";
-import { TenantStatus } from "~/types/dashboard";
+import type { Tenant, CreateTenantRequest, UpdateTenantRequest } from "~/types";
+import { TenantStatus } from "~/types";
 
 interface TenantFormProps {
   tenant?: Tenant;

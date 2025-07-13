@@ -18,7 +18,7 @@ import { useRoles } from "~/lib/hooks/useRoles";
 import { TenantLink } from "~/components/tenant-link";
 import { useTenantNavigation } from "~/lib/hooks/useNavigation";
 import { PermissionsSelector } from "~/components/permissions-selector";
-import type { Permission, InviteUserRequest } from "~/types/dashboard";
+import type { Permission, InviteUserRequest } from "~/types";
 
 // Form validation schema based on the backend inviteUserValidator
 const inviteUserSchema = z.object({

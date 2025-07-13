@@ -1,10 +1,16 @@
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
 import { CreditCard, Plus, Trash2 } from "lucide-react";
 import { AddPaymentMethodDialog } from "./add-payment-method-dialog";
-import type { Billing } from "~/types/dashboard";
+import type { Billing } from "~/types";
 
 interface PaymentMethodCardProps {
   billing: Billing;
@@ -48,7 +54,9 @@ export function PaymentMethodCard({ billing }: PaymentMethodCardProps) {
           ) : (
             <div className="text-center py-8 border-2 border-dashed border-gray-200 rounded-lg">
               <CreditCard className="h-8 w-8 mx-auto text-gray-400 mb-2" />
-              <p className="text-muted-foreground mb-4">No payment method added</p>
+              <p className="text-muted-foreground mb-4">
+                No payment method added
+              </p>
               <Button onClick={() => setShowAddPaymentDialog(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Add Payment Method
@@ -57,8 +65,8 @@ export function PaymentMethodCard({ billing }: PaymentMethodCardProps) {
           )}
 
           {hasPaymentMethod && (
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="w-full"
               onClick={() => setShowAddPaymentDialog(true)}
             >

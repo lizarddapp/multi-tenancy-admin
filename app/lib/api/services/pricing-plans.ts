@@ -1,7 +1,7 @@
 import api from "../client";
 import { ENDPOINTS } from "../endpoints";
 import type { ApiResponse } from "../client";
-import type { BillingPlan, BillingCycle } from "~/types/dashboard";
+import type { BillingPlan, BillingCycle } from "~/types";
 
 export interface PlanFeature {
   name: string;
@@ -76,7 +76,9 @@ export const pricingPlansService = {
   },
 
   // Get specific pricing plan by slug
-  get: async (slug: BillingPlan): Promise<ApiResponse<{ data: PricingPlan }>> => {
+  get: async (
+    slug: BillingPlan
+  ): Promise<ApiResponse<{ data: PricingPlan }>> => {
     return api.get<{ data: PricingPlan }>(ENDPOINTS.PRICING_PLANS.GET(slug));
   },
 
@@ -93,7 +95,9 @@ export const pricingPlansService = {
   getFeatures: async (
     slug: BillingPlan
   ): Promise<ApiResponse<{ data: PlanFeatures }>> => {
-    return api.get<{ data: PlanFeatures }>(ENDPOINTS.PRICING_PLANS.FEATURES(slug));
+    return api.get<{ data: PlanFeatures }>(
+      ENDPOINTS.PRICING_PLANS.FEATURES(slug)
+    );
   },
 
   // Get upgrade options for current plan

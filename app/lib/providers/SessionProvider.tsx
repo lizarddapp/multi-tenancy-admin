@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { authService } from "../api/services/auth";
 import { QUERY_KEYS } from "../api/endpoints";
 import { useCurrentUser as useCurrentUserQuery } from "../hooks/useAuth";
-import type { AuthUser } from "~/types/dashboard";
+import type { AuthUser } from "~/types";
 
 // Storage keys
 const TOKEN_KEY = "auth_token";

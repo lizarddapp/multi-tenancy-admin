@@ -18,9 +18,9 @@ import {
   ArrowDownRight,
   Plus,
 } from "lucide-react";
-import type {
-  DashboardStat,
-  Activity as ActivityType,
+import {
+  type DashboardStat,
+  type Activity as ActivityType,
   TenantStatus,
 } from "~/types";
 

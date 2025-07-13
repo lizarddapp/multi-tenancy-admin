@@ -1,7 +1,7 @@
 import { useSession } from "~/lib/providers/SessionProvider";
 import { useMyPermissions } from "./useAuth";
-import type { AuthUser } from "~/types/dashboard";
-import { UserRole } from "~/types/dashboard";
+import type { AuthUser } from "~/types";
+import { UserRole } from "~/types";
 
 /**
  * Hook for checking user permissions

@@ -11,7 +11,7 @@ import { Alert, AlertDescription } from "~/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
 import { usePricingPlansComparison } from "~/lib/hooks/usePricingPlans";
 import { useUpdateBilling } from "~/lib/hooks/useBilling";
-import { BillingPlan, BillingCycle } from "~/types/dashboard";
+import { BillingPlan, BillingCycle } from "~/types";
 import type { PricingPlan } from "~/lib/api/services/pricing-plans";
 import { BillingCycleToggle } from "./billing-cycle-toggle";
 import { PlanCard } from "./plan-card";

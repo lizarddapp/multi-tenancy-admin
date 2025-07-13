@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { pricingPlansService } from "../api/services/pricing-plans";
 import { QUERY_KEYS } from "../api/endpoints";
 import { STALE_TIME } from "../providers/QueryProvider";
-import type { BillingPlan, BillingCycle } from "~/types/dashboard";
+import type { BillingPlan, BillingCycle } from "~/types";
 
 // Get all pricing plans
 export const usePricingPlans = () => {
@@ -42,7 +42,10 @@ export const usePricingPlan = (slug: BillingPlan) => {
 };
 
 // Get plan price for specific cycle
-export const usePlanPrice = (slug: BillingPlan, cycle: BillingCycle = "monthly") => {
+export const usePlanPrice = (
+  slug: BillingPlan,
+  cycle: BillingCycle = "monthly"
+) => {
   return useQuery({
     queryKey: QUERY_KEYS.PRICING_PLANS.PRICE(slug, cycle),
     queryFn: () => pricingPlansService.getPrice(slug, cycle),

@@ -15,8 +15,8 @@ import { Label } from "~/components/ui/label";
 import { ArrowLeft, User, Mail, Phone, Shield } from "lucide-react";
 import { useCreateUser } from "~/lib/hooks/useUsers";
 import { useRoles } from "~/lib/hooks/useRoles";
-import type { CreateUserRequest } from "~/types/dashboard";
-import { UserStatus } from "~/types/dashboard";
+import type { CreateUserRequest } from "~/types";
+import { UserStatus } from "~/types";
 import { TenantLink } from "~/components/tenant-link";
 import { useTenantNavigation } from "~/lib/hooks/useNavigation";
 

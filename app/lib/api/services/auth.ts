@@ -1,7 +1,7 @@
 import api from "../client";
 import { ENDPOINTS } from "../endpoints";
 import type { ApiResponse } from "../client";
-import type { LoginFormData, AuthUser, UserRole } from "~/types/dashboard";
+import type { LoginFormData, AuthUser, UserRole } from "~/types";
 
 export interface LoginResponse {
   user: AuthUser;

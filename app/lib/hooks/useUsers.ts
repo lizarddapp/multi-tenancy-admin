@@ -6,7 +6,7 @@ import type {
   UpdateUserRequest,
   UpdateUserStatusRequest,
   InviteUserRequest,
-} from "~/types/dashboard";
+} from "~/types";
 import { toast } from "sonner";
 import { getErrorMessage } from "~/lib/utils/error";
 

@@ -14,7 +14,7 @@ import {
 } from "~/components/ui/sidebar";
 import { useSession } from "~/lib/providers/SessionProvider";
 import { usePermissions, RESOURCES } from "~/lib/hooks/usePermissions";
-import { UserRole } from "~/types/dashboard";
+import { UserRole } from "~/types";
 import { useCurrentBilling } from "~/lib/hooks/useBilling";
 import { useTenant } from "~/lib/hooks/useTenant";
 

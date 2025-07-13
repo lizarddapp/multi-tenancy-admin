@@ -4,7 +4,7 @@ import { PricingPlansSection } from "~/components/billing/pricing-plans-section"
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
 import { useAuth } from "~/lib/hooks/useAuth";
-import { BillingPlan, BillingCycle } from "~/types/dashboard";
+import { BillingPlan, BillingCycle } from "~/types";
 
 export const meta: MetaFunction = () => {
   return [

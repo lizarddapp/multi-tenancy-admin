@@ -36,6 +36,13 @@ export enum RoleType {
   TENANT_USER = "tenant_user",
 }
 
+export enum UserRole {
+  SUPER_ADMIN = "super_admin",
+  ADMIN = "admin",
+  MANAGER = "manager",
+  VIEWER = "viewer",
+}
+
 export interface Permission {
   id: number;
   name: string;

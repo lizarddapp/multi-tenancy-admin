@@ -4,7 +4,7 @@ import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
 import { TenantLink } from "./tenant-link";
 import { useCurrentBilling } from "~/lib/hooks/useBilling";
-import { BillingPlan, BillingStatus } from "~/types/dashboard";
+import { BillingPlan, BillingStatus } from "~/types";
 
 interface UpgradeBannerProps {
   className?: string;

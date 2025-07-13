@@ -6,7 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "~/components/ui/dialog";
-import { BillingPlan, BillingCycle } from "~/types/dashboard";
+import { BillingPlan, BillingCycle } from "~/types";
 import { useUpdateBilling } from "~/lib/hooks/useBilling";
 import { usePricingPlansComparison } from "~/lib/hooks/usePricingPlans";
 import type { PricingPlan } from "~/lib/api/services/pricing-plans";

@@ -14,7 +14,7 @@ import { Input } from "~/components/ui/input";
 import { Alert, AlertDescription } from "~/components/ui/alert";
 import { Loader2, CreditCard } from "lucide-react";
 import { toast } from "sonner";
-import type { Billing } from "~/types/dashboard";
+import type { Billing } from "~/types";
 
 interface AddPaymentMethodDialogProps {
   open: boolean;
@@ -57,16 +57,19 @@ export function AddPaymentMethodDialog({
 
     try {
       // Create payment method
-      const { error: stripeError, paymentMethod } = await stripe.createPaymentMethod({
-        type: "card",
-        card: cardElement,
-        billing_details: {
-          name: cardholderName,
-        },
-      });
+      const { error: stripeError, paymentMethod } =
+        await stripe.createPaymentMethod({
+          type: "card",
+          card: cardElement,
+          billing_details: {
+            name: cardholderName,
+          },
+        });
 
       if (stripeError) {
-        setError(stripeError.message || "An error occurred while processing your card.");
+        setError(
+          stripeError.message || "An error occurred while processing your card."
+        );
         return;
       }
 
@@ -82,11 +85,10 @@ export function AddPaymentMethodDialog({
       // For now, we'll just show a success message
       toast.success("Payment method added successfully!");
       onOpenChange(false);
-      
+
       // Reset form
       setCardholderName("");
       cardElement.clear();
-
     } catch (err) {
       console.error("Payment method creation failed:", err);
       setError("An unexpected error occurred. Please try again.");

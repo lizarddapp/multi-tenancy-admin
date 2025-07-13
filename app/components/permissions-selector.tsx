@@ -5,7 +5,7 @@ import { Badge } from "~/components/ui/badge";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Search, Shield, Users, Building } from "lucide-react";
 import { usePermissions } from "~/lib/hooks/useRoles";
-import type { Permission, PermissionGroup } from "~/types/dashboard";
+import type { Permission, PermissionGroup } from "~/types";
 
 // Permission grouping utility
 const groupPermissionsByResource = (

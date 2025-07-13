@@ -6,7 +6,7 @@ import type {
   CreateTenantRequest,
   UpdateTenantRequest,
   UpdateTenantStatusRequest,
-} from "~/types/dashboard";
+} from "~/types";
 
 export interface TenantsListResponse {
   data: Tenant[];

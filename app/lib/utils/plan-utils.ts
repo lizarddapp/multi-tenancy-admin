@@ -1,5 +1,5 @@
 import { Star, Zap, Crown } from "lucide-react";
-import { BillingPlan, BillingCycle } from "~/types/dashboard";
+import { BillingPlan, BillingCycle } from "~/types";
 import type { PricingPlan } from "~/lib/api/services/pricing-plans";
 
 /**
@@ -34,10 +34,10 @@ export function getPlanPrice(plan: PricingPlan, cycle: BillingCycle): number {
  */
 export function getPlanSavings(plan: PricingPlan, cycle: BillingCycle): number {
   if (cycle === BillingCycle.MONTHLY || plan.monthlyPrice === 0) return 0;
-  
+
   const yearlyEquivalent = plan.monthlyPrice * 12;
   if (yearlyEquivalent === 0) return 0;
-  
+
   return Math.round(
     ((yearlyEquivalent - plan.yearlyPrice) / yearlyEquivalent) * 100
   );
@@ -46,21 +46,30 @@ export function getPlanSavings(plan: PricingPlan, cycle: BillingCycle): number {
 /**
  * Check if a plan is the current plan
  */
-export function isCurrentPlan(planSlug: BillingPlan, currentPlan: BillingPlan): boolean {
+export function isCurrentPlan(
+  planSlug: BillingPlan,
+  currentPlan: BillingPlan
+): boolean {
   return planSlug === currentPlan;
 }
 
 /**
  * Check if user can upgrade to a plan
  */
-export function canUpgradeToPlan(planSlug: BillingPlan, currentPlan: BillingPlan): boolean {
+export function canUpgradeToPlan(
+  planSlug: BillingPlan,
+  currentPlan: BillingPlan
+): boolean {
   return planOrder[planSlug] > planOrder[currentPlan];
 }
 
 /**
  * Check if user can downgrade to a plan
  */
-export function canDowngradeToPlan(planSlug: BillingPlan, currentPlan: BillingPlan): boolean {
+export function canDowngradeToPlan(
+  planSlug: BillingPlan,
+  currentPlan: BillingPlan
+): boolean {
   return planOrder[planSlug] < planOrder[currentPlan];
 }
 
@@ -75,13 +84,13 @@ export function getPlanIcon(planSlug: BillingPlan) {
  * Get plan action type (current, upgrade, downgrade, contact)
  */
 export function getPlanActionType(
-  planSlug: BillingPlan, 
+  planSlug: BillingPlan,
   currentPlan: BillingPlan
-): 'current' | 'upgrade' | 'downgrade' | 'contact' {
-  if (isCurrentPlan(planSlug, currentPlan)) return 'current';
-  if (canUpgradeToPlan(planSlug, currentPlan)) return 'upgrade';
-  if (canDowngradeToPlan(planSlug, currentPlan)) return 'downgrade';
-  return 'contact';
+): "current" | "upgrade" | "downgrade" | "contact" {
+  if (isCurrentPlan(planSlug, currentPlan)) return "current";
+  if (canUpgradeToPlan(planSlug, currentPlan)) return "upgrade";
+  if (canDowngradeToPlan(planSlug, currentPlan)) return "downgrade";
+  return "contact";
 }
 
 /**
@@ -124,10 +133,11 @@ export function formatPlanLimit(value: number | null, unit?: string): string {
  * Get plan features with display formatting
  */
 export function getFormattedPlanFeatures(plan: PricingPlan) {
-  return plan.features.map(feature => ({
+  return plan.features.map((feature) => ({
     ...feature,
-    displayName: feature.limit && feature.included 
-      ? `${feature.name} (${feature.limit.toLocaleString()})`
-      : feature.name
+    displayName:
+      feature.limit && feature.included
+        ? `${feature.name} (${feature.limit.toLocaleString()})`
+        : feature.name,
   }));
 }

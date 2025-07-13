@@ -7,8 +7,8 @@ import {
   useDeleteUser,
   useUpdateUserStatus,
 } from "~/lib/hooks/useUsers";
-import type { User as UserType, UserStatus } from "~/types/dashboard";
-import { UserStatus as UserStatusEnum } from "~/types/dashboard";
+import type { User as UserType, UserStatus } from "~/types";
+import { UserStatus as UserStatusEnum } from "~/types";
 import { DataTable } from "~/components/ui/data-table";
 import { TableCells } from "~/components/ui/table-cells";
 import {

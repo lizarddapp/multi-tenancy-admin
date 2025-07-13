@@ -6,7 +6,7 @@ import type {
   CreateRoleRequest,
   UpdateRoleRequest,
   AssignPermissionsRequest,
-} from "~/types/dashboard";
+} from "~/types";
 import { toast } from "sonner";
 
 // Get all roles

@@ -9,7 +9,7 @@ import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
 import { useCurrentBilling } from "~/lib/hooks/useBilling";
-import { BillingStatus, BillingPlan, BillingCycle } from "~/types/dashboard";
+import { BillingStatus, BillingPlan, BillingCycle } from "~/types";
 import { formatCurrency, formatDate } from "~/lib/utils";
 import {
   CreditCard,

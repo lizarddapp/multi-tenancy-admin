@@ -8,7 +8,7 @@ import type {
   BillingStatus,
   BillingPlan,
   BillingCycle,
-} from "~/types/dashboard";
+} from "~/types";
 
 export interface BillingListResponse {
   data: Billing[];

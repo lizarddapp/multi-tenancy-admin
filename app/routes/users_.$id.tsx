@@ -31,8 +31,8 @@ import {
 } from "~/lib/hooks/useUsers";
 import { useTenants } from "~/lib/hooks/useTenants";
 import { usePermissions } from "~/lib/hooks/useRoles";
-import type { UpdateUserRequest } from "~/types/dashboard";
-import { UserStatus } from "~/types/dashboard";
+import type { UpdateUserRequest } from "~/types";
+import { UserStatus } from "~/types";
 import { TenantLink } from "~/components/tenant-link";
 import { useTenantNavigation } from "~/lib/hooks/useNavigation";
 import { PermissionsSelector } from "~/components/permissions-selector";

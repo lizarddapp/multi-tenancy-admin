@@ -58,7 +58,7 @@ import type {
   Permission,
   CreateRoleRequest,
   UpdateRoleRequest,
-} from "~/types/dashboard";
+} from "~/types";
 import { PermissionsSelector } from "~/components/permissions-selector";
 
 // Role form component
