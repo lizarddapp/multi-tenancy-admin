@@ -113,16 +113,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     // No billing record means needs setup
     if (!billing) return true;
 
-    // Check various conditions that require attention
-    const isActive = billing.status === "active";
-    const isTrialExpired =
-      billing.trialEnd && new Date(billing.trialEnd) < new Date();
-    const isPastDue = billing.status === "past_due";
-    const isCancelled = billing.status === "cancelled";
-    const isFree = billing.plan === "free";
-
-    // Show upgrade banner for any of these conditions
-    return !isActive || isTrialExpired || isPastDue || isCancelled || isFree;
+    // Use the needsUpgrade field from the database
+    return billing.needsUpgrade;
   }, [currentTenant, billingData]);
 
   // Show minimal sidebar while permissions are loading

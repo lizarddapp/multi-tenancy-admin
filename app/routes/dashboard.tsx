@@ -21,8 +21,8 @@ import {
 import type {
   DashboardStat,
   Activity as ActivityType,
-} from "~/types/dashboard";
-import { TenantStatus } from "~/types/dashboard";
+  TenantStatus,
+} from "~/types";
 
 // Mock data for the dashboard
 const stats: DashboardStat[] = [

@@ -1,4 +1,4 @@
-import { Crown, Zap, ArrowRight, Clock } from "lucide-react";
+import { Crown, Zap, ArrowRight } from "lucide-react";
 import { Card, CardContent } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
@@ -11,11 +11,7 @@ interface UpgradeBannerProps {
 }
 
 export function UpgradeBanner({ className }: UpgradeBannerProps) {
-  const {
-    data: billingData,
-    isLoading: billingLoading,
-    error,
-  } = useCurrentBilling();
+  const { data: billingData, isLoading: billingLoading } = useCurrentBilling();
   const billing = billingData?.data?.data;
 
   // Don't show banner if loading
@@ -65,6 +61,11 @@ export function UpgradeBanner({ className }: UpgradeBannerProps) {
         </CardContent>
       </Card>
     );
+  }
+
+  // If billing exists but doesn't need upgrade, don't show banner
+  if (!billing.needsUpgrade) {
+    return null;
   }
 
   // Determine banner content based on billing status

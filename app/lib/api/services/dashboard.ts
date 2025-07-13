@@ -1,7 +1,7 @@
 import api from "../client";
 import { ENDPOINTS } from "../endpoints";
 import type { ApiResponse } from "../client";
-import type { DashboardStat, Activity } from "~/types/dashboard";
+import type { DashboardStat, Activity } from "~/types";
 
 export interface DashboardStats {
   totalTenants: DashboardStat;
