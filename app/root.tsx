@@ -50,18 +50,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-// Helper function to check if current route uses tenant layout
-// Examples:
-// - "/tenant1" -> true (tenant route)
-// - "/tenant1/dashboard" -> true (tenant route)
-// - "/_auth/login" -> false (auth route)
-// - "/" -> false (root route)
-function checkIsTenantRoute(pathname: string): boolean {
-  return (
-    !!pathname.match(/^\/[^\/]+(?:\/.*)?$/) && !pathname.startsWith("/_auth")
-  );
-}
-
 // Component to handle authentication checks
 function AuthenticatedApp() {
   const { isAuthenticated, isLoading } = useSession();
@@ -72,16 +60,12 @@ function AuthenticatedApp() {
   const { data: tenantsResponse } = useAvailableTenants();
 
   useEffect(() => {
-    // Check if current route is a tenant route (uses tenant layout)
-    const isCurrentlyTenantRoute = checkIsTenantRoute(location.pathname);
+    // Check if current route is an auth route
+    const isAuthRoute = location.pathname.startsWith("/_auth");
 
-    // Only redirect to login for tenant routes when not authenticated
-    if (
-      !isLoading &&
-      !isAuthenticated &&
-      isCurrentlyTenantRoute &&
-      location.pathname !== "/_auth/login"
-    ) {
+    // Redirect to login when not authenticated and not already on an auth route
+    // This includes the root URL "/" and any tenant routes
+    if (!isLoading && !isAuthenticated && !isAuthRoute) {
       navigate("/_auth/login");
     }
     // if is authenticated and path still in / , navigate to the first tenant
@@ -132,16 +116,16 @@ function AuthenticatedApp() {
     );
   }
 
-  // Check if current route is a tenant route (uses tenant layout)
-  const isCurrentlyTenantRoute = checkIsTenantRoute(location.pathname);
+  // Check if current route is an auth route
+  const isAuthRoute = location.pathname.startsWith("/_auth");
 
-  // Allow unauthenticated routes (/_auth/*) to render
-  if (!isAuthenticated && !isCurrentlyTenantRoute) {
+  // Allow unauthenticated auth routes (/_auth/*) to render
+  if (!isAuthenticated && isAuthRoute) {
     return <Outlet />;
   }
 
-  // Don't render tenant routes if not authenticated
-  if (!isAuthenticated && isCurrentlyTenantRoute) {
+  // Don't render non-auth routes if not authenticated (this should not happen due to redirect above)
+  if (!isAuthenticated && !isAuthRoute) {
     return null;
   }
 

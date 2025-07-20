@@ -7,7 +7,6 @@ export { BASE_URL, ENDPOINTS, QUERY_KEYS } from "./endpoints";
 
 // Export services
 export { authService, authUtils } from "./services/auth";
-export { dashboardService } from "./services/dashboard";
 
 // Export service types
 export type {
@@ -16,9 +15,3 @@ export type {
   UpdateProfileRequest,
   ChangePasswordRequest,
 } from "./services/auth";
-
-export type {
-  DashboardStats,
-  DashboardMetrics,
-  RecentActivity,
-} from "./services/dashboard";

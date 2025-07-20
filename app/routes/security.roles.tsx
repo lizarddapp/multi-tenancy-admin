@@ -37,6 +37,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "~/components/ui/alert-dialog";
+import { ScrollArea } from "~/components/ui/scroll-area";
 import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
 import { Plus, Search, Edit, Trash2, MoreHorizontal } from "lucide-react";
@@ -119,57 +120,65 @@ function RoleForm({ role, onSubmit, onCancel, isSubmitting }: RoleFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="name">Name</Label>
-          <Input
-            id="name"
-            value={formData.name}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, name: e.target.value }))
-            }
-            placeholder="e.g., admin, manager"
-            required
-            disabled={role?.isSystem}
+    <form onSubmit={handleSubmit} className="contents">
+      <ScrollArea className="flex max-h-full flex-col overflow-hidden">
+        <div className="px-6 pt-6 space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Name</Label>
+            <Input
+              id="name"
+              value={formData.name}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, name: e.target.value }))
+              }
+              placeholder="e.g., admin, manager"
+              required
+              disabled={role?.isSystem}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="displayName">Display Name</Label>
+            <Input
+              id="displayName"
+              value={formData.displayName}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  displayName: e.target.value,
+                }))
+              }
+              placeholder="e.g., Administrator, Manager"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  description: e.target.value,
+                }))
+              }
+              placeholder="Role description..."
+              rows={3}
+            />
+          </div>
+
+          <PermissionsSelector
+            selectedPermissions={formData.permissionNames}
+            onPermissionChange={handlePermissionChange}
+            onGroupToggle={handleGroupToggle}
+            isLoading={isSubmitting}
           />
         </div>
+      </ScrollArea>
 
-        <div className="space-y-2">
-          <Label htmlFor="displayName">Display Name</Label>
-          <Input
-            id="displayName"
-            value={formData.displayName}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, displayName: e.target.value }))
-            }
-            placeholder="e.g., Administrator, Manager"
-            required
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="description">Description</Label>
-          <Textarea
-            id="description"
-            value={formData.description}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, description: e.target.value }))
-            }
-            placeholder="Role description..."
-            rows={3}
-          />
-        </div>
-
-        <PermissionsSelector
-          selectedPermissions={formData.permissionNames}
-          onPermissionChange={handlePermissionChange}
-          onGroupToggle={handleGroupToggle}
-          isLoading={isSubmitting}
-        />
-      </div>
-
-      <DialogFooter>
+      <DialogFooter className="px-6 pb-6 sm:justify-start">
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
         </Button>
@@ -267,10 +276,10 @@ export default function RolesPage() {
               Create Role
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Create New Role</DialogTitle>
-              <DialogDescription>
+          <DialogContent className="flex flex-col gap-0 p-0 sm:max-h-[min(640px,80vh)] sm:max-w-2xl">
+            <DialogHeader className="contents space-y-0 text-left">
+              <DialogTitle className="px-6 pt-6">Create New Role</DialogTitle>
+              <DialogDescription className="px-6">
                 Create a new role and assign permissions to it.
               </DialogDescription>
             </DialogHeader>
@@ -422,10 +431,10 @@ export default function RolesPage() {
 
       {/* Edit Role Dialog */}
       <Dialog open={!!editingRole} onOpenChange={() => setEditingRole(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Edit Role</DialogTitle>
-            <DialogDescription>
+        <DialogContent className="flex flex-col gap-0 p-0 sm:max-h-[min(640px,80vh)] sm:max-w-2xl">
+          <DialogHeader className="contents space-y-0 text-left">
+            <DialogTitle className="px-6 pt-6">Edit Role</DialogTitle>
+            <DialogDescription className="px-6">
               Update role details and permissions.
             </DialogDescription>
           </DialogHeader>

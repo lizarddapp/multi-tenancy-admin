@@ -84,7 +84,7 @@ export function PricingPlansSection({
     );
   }
 
-  if (error || !(plansResponse as any)?.data?.data) {
+  if (error || !(plansResponse as any)?.data) {
     return (
       <Card>
         <CardContent className="pt-6">
@@ -99,7 +99,7 @@ export function PricingPlansSection({
     );
   }
 
-  const plans = (plansResponse as any).data.data;
+  const plans = (plansResponse as any).data as PricingPlan[];
 
   return (
     <Card>
@@ -117,17 +117,18 @@ export function PricingPlansSection({
       </CardHeader>
 
       <CardContent>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 items-stretch">
           {plans.map((plan: PricingPlan) => (
-            <PlanCard
-              key={plan.slug}
-              plan={plan}
-              currentPlan={currentPlan}
-              selectedCycle={selectedCycle}
-              onPlanSelect={handlePlanSelect}
-              isLoading={updateBilling.isPending}
-              variant="detailed"
-            />
+            <div key={plan.slug} className="flex">
+              <PlanCard
+                plan={plan}
+                currentPlan={currentPlan}
+                selectedCycle={selectedCycle}
+                onPlanSelect={handlePlanSelect}
+                isLoading={updateBilling.isPending}
+                variant="detailed"
+              />
+            </div>
           ))}
         </div>
       </CardContent>

@@ -7,7 +7,6 @@ import {
 } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
-import { Separator } from "~/components/ui/separator";
 import { useCurrentBilling } from "~/lib/hooks/useBilling";
 import { BillingStatus, BillingPlan, BillingCycle } from "~/types";
 import { formatCurrency, formatDate } from "~/lib/utils";
@@ -94,18 +93,26 @@ export function BillingDashboard() {
           </CardContent>
         </Card>
 
-        <PricingPlansSection />
+        <PricingPlansSection
+          currentPlan={BillingPlan.FREE}
+          currentCycle={BillingCycle.MONTHLY}
+          onPlanSelect={(_plan, _cycle) => {
+            setShowUpgradeDialog(true);
+          }}
+        />
 
         <UpgradePlanDialog
           open={showUpgradeDialog}
           onOpenChange={setShowUpgradeDialog}
+          currentPlan={BillingPlan.FREE}
+          currentCycle={BillingCycle.MONTHLY}
         />
       </div>
     );
   }
 
-  // Handle other errors
-  if (error || !billingResponse?.data) {
+  // Handle actual errors (not null data)
+  if (error) {
     return (
       <Card>
         <CardContent className="pt-6">
@@ -119,7 +126,25 @@ export function BillingDashboard() {
     );
   }
 
-  const billing = billingResponse.data;
+  const billing = billingResponse?.data?.data;
+
+  // If no billing data after successful response, this shouldn't happen
+  // but we'll handle it gracefully
+  if (!billing) {
+    return (
+      <Card>
+        <CardContent className="pt-6">
+          <div className="text-center text-muted-foreground">
+            <AlertTriangle className="h-8 w-8 mx-auto mb-2" />
+            <p>No billing data available</p>
+            <p className="text-sm mt-2">
+              Please contact support if this persists
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   const getStatusIcon = (status: BillingStatus) => {
     switch (status) {
@@ -378,7 +403,7 @@ export function BillingDashboard() {
       <PricingPlansSection
         currentPlan={billing.plan}
         currentCycle={billing.cycle}
-        onPlanSelect={(plan, cycle) => {
+        onPlanSelect={(_plan, _cycle) => {
           // Close any existing dialog and show upgrade dialog with selected plan
           setShowUpgradeDialog(true);
         }}

@@ -91,18 +91,7 @@ export const ENDPOINTS = {
       `/admin/pricing-plans/${slug}/upgrade-options`,
   },
 
-  // =================================================================
-  // FUTURE ENDPOINTS (To be implemented)
-  // =================================================================
-
-  // Dashboard (these endpoints may need to be added to backend)
-  DASHBOARD: {
-    STATS: "/admin/dashboard/stats",
-    RECENT_ACTIVITY: "/admin/dashboard/recent-activity",
-    METRICS: "/admin/dashboard/metrics",
-  },
-
-  // Users (these endpoints may need to be added to backend)
+  // Users - These endpoints are implemented in backend
   USERS: {
     LIST: "/admin/users",
     GET: (id: string) => `/admin/users/${id}`,
@@ -113,54 +102,6 @@ export const ENDPOINTS = {
     INVITE: "/admin/users/invite",
     BULK_INVITE: "/admin/users/bulk-invite",
     UPDATE_PERMISSIONS: (id: string) => `/admin/users/${id}/permissions`,
-  },
-
-  // Analytics (these endpoints may need to be added to backend)
-  ANALYTICS: {
-    OVERVIEW: "/admin/analytics/overview",
-    USAGE: "/admin/analytics/usage",
-    REVENUE: "/admin/analytics/revenue",
-    CONVERSION: "/admin/analytics/conversion",
-  },
-
-  // Products/Services (these endpoints may need to be added to backend)
-  PRODUCTS: {
-    LIST: "/admin/products",
-    CREATE: "/admin/products",
-    GET: (id: string) => `/admin/products/${id}`,
-    UPDATE: (id: string) => `/admin/products/${id}`,
-    DELETE: (id: string) => `/admin/products/${id}`,
-  },
-
-  // Settings (these endpoints may need to be added to backend)
-  SETTINGS: {
-    GENERAL: "/admin/settings/general",
-    SECURITY: "/admin/settings/security",
-    NOTIFICATIONS: "/admin/settings/notifications",
-    BILLING: "/admin/settings/billing",
-    INTEGRATIONS: "/admin/settings/integrations",
-  },
-
-  // Notifications (these endpoints may need to be added to backend)
-  NOTIFICATIONS: {
-    LIST: "/admin/notifications",
-    MARK_READ: (id: string) => `/admin/notifications/${id}/read`,
-    MARK_ALL_READ: "/admin/notifications/mark-all-read",
-    DELETE: (id: string) => `/admin/notifications/${id}`,
-  },
-
-  // File Upload (these endpoints may need to be added to backend)
-  UPLOAD: {
-    SINGLE: "/admin/upload/single",
-    MULTIPLE: "/admin/upload/multiple",
-    AVATAR: "/admin/upload/avatar",
-  },
-
-  // Reports (these endpoints may need to be added to backend)
-  REPORTS: {
-    GENERATE: "/admin/reports/generate",
-    DOWNLOAD: (id: string) => `/admin/reports/${id}/download`,
-    LIST: "/admin/reports",
   },
 } as const;
 
@@ -218,39 +159,10 @@ export const QUERY_KEYS = {
   },
 
   // =================================================================
-  // FUTURE QUERY KEYS (To be implemented)
+  // IMPLEMENTED QUERY KEYS
   // =================================================================
 
   // Users
   USERS: ["admin", "users"] as const,
   USER: (id: string) => ["admin", "users", id] as const,
-
-  // Dashboard
-  DASHBOARD_STATS: ["admin", "dashboard", "stats"] as const,
-  RECENT_ACTIVITY: ["admin", "dashboard", "recent-activity"] as const,
-  DASHBOARD_METRICS: ["admin", "dashboard", "metrics"] as const,
-
-  // Analytics
-  ANALYTICS_OVERVIEW: ["admin", "analytics", "overview"] as const,
-  ANALYTICS_USAGE: ["admin", "analytics", "usage"] as const,
-  ANALYTICS_REVENUE: ["admin", "analytics", "revenue"] as const,
-  ANALYTICS_CONVERSION: ["admin", "analytics", "conversion"] as const,
-
-  // Products
-  PRODUCTS: ["admin", "products"] as const,
-  PRODUCT: (id: string) => ["admin", "products", id] as const,
-
-  // Settings
-  SETTINGS: (type: string) => ["admin", "settings", type] as const,
-
-  // Notifications
-  NOTIFICATIONS: ["admin", "notifications"] as const,
-
-  // Reports
-  REPORTS: ["admin", "reports"] as const,
-
-  // Merchants (for existing code compatibility)
-  MERCHANTS: ["merchants"] as const,
-  MERCHANT: (id: string) => ["merchants", id] as const,
-  MERCHANT_ANALYTICS: (id: string) => ["merchants", id, "analytics"] as const,
 } as const;

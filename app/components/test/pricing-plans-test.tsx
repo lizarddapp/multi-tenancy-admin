@@ -8,6 +8,14 @@ import { AlertTriangle, Check } from "lucide-react";
 export function PricingPlansTest() {
   const { data: plansResponse, isLoading, error } = usePricingPlansComparison();
 
+  // Debug logging
+  console.log("PricingPlansTest Debug:", {
+    isLoading,
+    error: error?.message || error,
+    plansResponse,
+    hasData: !!plansResponse?.data,
+  });
+
   if (isLoading) {
     return (
       <Card>
@@ -39,6 +47,18 @@ export function PricingPlansTest() {
               Failed to load pricing plans: {error?.message || "Unknown error"}
             </AlertDescription>
           </Alert>
+
+          {/* Debug information */}
+          <div className="mt-4 p-4 bg-muted rounded-lg">
+            <h4 className="font-medium mb-2">Debug Information:</h4>
+            <div className="text-xs space-y-1">
+              <div>
+                API URL: http://localhost:3333/api/v1/admin/pricing-plans
+              </div>
+              <div>Error: {JSON.stringify(error, null, 2)}</div>
+              <div>Response: {JSON.stringify(plansResponse, null, 2)}</div>
+            </div>
+          </div>
         </CardContent>
       </Card>
     );
@@ -65,11 +85,13 @@ export function PricingPlansTest() {
                   </Badge>
                 </div>
               )}
-              
+
               <CardHeader className="text-center pb-2">
                 <CardTitle className="text-lg">{plan.name}</CardTitle>
-                <p className="text-sm text-muted-foreground">{plan.description}</p>
-                
+                <p className="text-sm text-muted-foreground">
+                  {plan.description}
+                </p>
+
                 <div className="mt-2">
                   <div className="text-2xl font-bold">
                     ${(plan.monthlyPrice / 100).toFixed(0)}
@@ -77,27 +99,43 @@ export function PricingPlansTest() {
                   <div className="text-xs text-muted-foreground">per month</div>
                 </div>
               </CardHeader>
-              
+
               <CardContent className="pt-2">
                 <div className="space-y-1 text-sm">
                   <div>
-                    <strong>Users:</strong> {plan.limits.maxUsers || "Unlimited"}
+                    <strong>Users:</strong>{" "}
+                    {plan.limits.maxUsers || "Unlimited"}
                   </div>
                   <div>
-                    <strong>Storage:</strong> {plan.limits.maxStorage ? `${plan.limits.maxStorage}GB` : "Unlimited"}
+                    <strong>Storage:</strong>{" "}
+                    {plan.limits.maxStorage
+                      ? `${plan.limits.maxStorage}GB`
+                      : "Unlimited"}
                   </div>
                   {plan.limits.maxApiCalls && (
                     <div>
-                      <strong>API:</strong> {plan.limits.maxApiCalls.toLocaleString()}/mo
+                      <strong>API:</strong>{" "}
+                      {plan.limits.maxApiCalls.toLocaleString()}/mo
                     </div>
                   )}
                 </div>
-                
+
                 <div className="mt-3 space-y-1">
                   {plan.features.slice(0, 3).map((feature, index) => (
-                    <div key={index} className="flex items-center gap-2 text-xs">
-                      <Check className={`h-3 w-3 ${feature.included ? "text-green-500" : "text-gray-300"}`} />
-                      <span className={feature.included ? "" : "text-muted-foreground"}>
+                    <div
+                      key={index}
+                      className="flex items-center gap-2 text-xs"
+                    >
+                      <Check
+                        className={`h-3 w-3 ${
+                          feature.included ? "text-green-500" : "text-gray-300"
+                        }`}
+                      />
+                      <span
+                        className={
+                          feature.included ? "" : "text-muted-foreground"
+                        }
+                      >
                         {feature.name}
                       </span>
                     </div>
@@ -112,7 +150,7 @@ export function PricingPlansTest() {
             </Card>
           ))}
         </div>
-        
+
         <div className="mt-6 p-4 bg-muted rounded-lg">
           <h4 className="font-medium mb-2">API Response Details:</h4>
           <pre className="text-xs overflow-auto">
