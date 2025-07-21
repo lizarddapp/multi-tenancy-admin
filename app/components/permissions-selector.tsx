@@ -196,7 +196,7 @@ export function PermissionsSelector({
         </div>
       </div>
 
-      <div className="space-y-6 max-h-[600px] pr-2">
+      <div className="space-y-6 pr-2">
         {filteredGroups.length > 0 ? (
           filteredGroups.map((group) => (
             <PermissionGroupComponent

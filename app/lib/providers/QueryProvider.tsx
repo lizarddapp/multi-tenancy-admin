@@ -42,18 +42,8 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
             refetchOnReconnect: true,
           },
           mutations: {
-            // Retry failed mutations
-            retry: (failureCount, error: any) => {
-              // Don't retry on client errors (4xx)
-              if (
-                error?.response?.status >= 400 &&
-                error?.response?.status < 500
-              ) {
-                return false;
-              }
-              // Retry up to 2 times for server errors
-              return failureCount < 2;
-            },
+            // Don't retry failed mutations (POST, PUT, PATCH, DELETE requests)
+            retry: false,
           },
         },
       })

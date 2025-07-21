@@ -17,26 +17,6 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "~/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "~/components/ui/alert-dialog";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
@@ -47,6 +27,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import {
+  useCreateModal,
+  useEditModal,
+  useConfirmModal,
+} from "~/lib/stores/useModalStore";
 import {
   useRoles,
   usePermissions,
@@ -178,22 +163,25 @@ function RoleForm({ role, onSubmit, onCancel, isSubmitting }: RoleFormProps) {
         </div>
       </ScrollArea>
 
-      <DialogFooter className="px-6 pb-6 sm:justify-start">
+      <div className="flex justify-end space-x-2 px-6 py-6">
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
         </Button>
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Saving..." : role ? "Update Role" : "Create Role"}
         </Button>
-      </DialogFooter>
+      </div>
     </form>
   );
 }
 
 export default function RolesPage() {
   const [search, setSearch] = useState("");
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [editingRole, setEditingRole] = useState<Role | null>(null);
+
+  // Modal hooks
+  const { openCreateModal, closeCreateModal } = useCreateModal();
+  const { openEditModal, closeEditModal } = useEditModal();
+  const { openConfirmModal, closeConfirmModal } = useConfirmModal();
 
   // Queries (tenant context is handled within the hooks)
   const { data: rolesResponse, isLoading, error } = useRoles({ search });
@@ -209,25 +197,88 @@ export default function RolesPage() {
   ) => {
     try {
       await createRoleMutation.mutateAsync(data as CreateRoleRequest);
-      setIsCreateDialogOpen(false);
+      closeCreateModal();
     } catch (error) {
       // Error is handled by the mutation
     }
   };
 
-  const handleUpdateRole = async (
-    data: CreateRoleRequest | UpdateRoleRequest
-  ) => {
-    if (!editingRole) return;
-    try {
-      await updateRoleMutation.mutateAsync({
-        id: editingRole.id,
-        data: data as UpdateRoleRequest,
-      });
-      setEditingRole(null);
-    } catch (error) {
-      // Error is handled by the mutation
-    }
+  // Helper functions to open modals
+  const openCreateRoleModal = () => {
+    openCreateModal(
+      <RoleForm
+        onSubmit={handleCreateRole}
+        onCancel={closeCreateModal}
+        isSubmitting={createRoleMutation.isPending}
+      />,
+      {
+        title: "Create New Role",
+        size: "5xl",
+        maxHeight: "85vh",
+      }
+    );
+  };
+
+  const openEditRoleModal = (role: Role) => {
+    const handleUpdate = async (
+      data: CreateRoleRequest | UpdateRoleRequest
+    ) => {
+      try {
+        await updateRoleMutation.mutateAsync({
+          id: role.id,
+          data: data as UpdateRoleRequest,
+        });
+        closeEditModal();
+      } catch (error) {
+        // Error is handled by the mutation
+      }
+    };
+
+    openEditModal(
+      <RoleForm
+        role={role}
+        onSubmit={handleUpdate}
+        onCancel={closeEditModal}
+        isSubmitting={updateRoleMutation.isPending}
+      />,
+      {
+        title: "Edit Role",
+        size: "5xl",
+        maxHeight: "85vh",
+      }
+    );
+  };
+
+  const openDeleteRoleModal = (role: Role) => {
+    openConfirmModal(
+      <div className="space-y-4">
+        <p>Are you sure you want to delete the role "{role.displayName}"?</p>
+        <p className="text-sm text-muted-foreground">
+          This action cannot be undone. Users with this role will lose their
+          permissions.
+        </p>
+        <div className="flex justify-end space-x-2">
+          <Button variant="outline" onClick={closeConfirmModal}>
+            Cancel
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={() => {
+              handleDeleteRole(role.id);
+              closeConfirmModal();
+            }}
+            disabled={deleteRoleMutation.isPending}
+          >
+            {deleteRoleMutation.isPending ? "Deleting..." : "Delete Role"}
+          </Button>
+        </div>
+      </div>,
+      {
+        title: "Delete Role",
+        description: "This action cannot be undone.",
+        size: "sm",
+      }
+    );
   };
 
   const handleDeleteRole = async (id: number) => {
@@ -269,27 +320,10 @@ export default function RolesPage() {
             Manage user roles and their permissions
           </p>
         </div>
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Create Role
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="flex flex-col gap-0 p-0 sm:max-h-[min(640px,80vh)] sm:max-w-2xl">
-            <DialogHeader className="contents space-y-0 text-left">
-              <DialogTitle className="px-6 pt-6">Create New Role</DialogTitle>
-              <DialogDescription className="px-6">
-                Create a new role and assign permissions to it.
-              </DialogDescription>
-            </DialogHeader>
-            <RoleForm
-              onSubmit={handleCreateRole}
-              onCancel={() => setIsCreateDialogOpen(false)}
-              isSubmitting={createRoleMutation.isPending}
-            />
-          </DialogContent>
-        </Dialog>
+        <Button onClick={openCreateRoleModal}>
+          <Plus className="mr-2 h-4 w-4" />
+          Create Role
+        </Button>
       </div>
 
       <Card>
@@ -368,44 +402,19 @@ export default function RolesPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem
-                            onClick={() => setEditingRole(role)}
+                            onClick={() => openEditRoleModal(role)}
                           >
                             <Edit className="mr-2 h-4 w-4" />
                             Edit
                           </DropdownMenuItem>
                           {!role.isSystem && (
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <DropdownMenuItem
-                                  onSelect={(e) => e.preventDefault()}
-                                  className="text-destructive"
-                                >
-                                  <Trash2 className="mr-2 h-4 w-4" />
-                                  Delete
-                                </DropdownMenuItem>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>
-                                    Delete Role
-                                  </AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Are you sure you want to delete the role "
-                                    {role.displayName}"? This action cannot be
-                                    undone.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction
-                                    onClick={() => handleDeleteRole(role.id)}
-                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                  >
-                                    Delete
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
+                            <DropdownMenuItem
+                              onClick={() => openDeleteRoleModal(role)}
+                              className="text-destructive"
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete
+                            </DropdownMenuItem>
                           )}
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -428,26 +437,6 @@ export default function RolesPage() {
           )}
         </CardContent>
       </Card>
-
-      {/* Edit Role Dialog */}
-      <Dialog open={!!editingRole} onOpenChange={() => setEditingRole(null)}>
-        <DialogContent className="flex flex-col gap-0 p-0 sm:max-h-[min(640px,80vh)] sm:max-w-2xl">
-          <DialogHeader className="contents space-y-0 text-left">
-            <DialogTitle className="px-6 pt-6">Edit Role</DialogTitle>
-            <DialogDescription className="px-6">
-              Update role details and permissions.
-            </DialogDescription>
-          </DialogHeader>
-          {editingRole && (
-            <RoleForm
-              role={editingRole}
-              onSubmit={handleUpdateRole}
-              onCancel={() => setEditingRole(null)}
-              isSubmitting={updateRoleMutation.isPending}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

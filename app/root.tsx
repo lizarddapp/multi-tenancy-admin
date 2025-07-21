@@ -16,6 +16,7 @@ import { SessionProvider, useSession } from "./lib/providers/SessionProvider";
 import { useAvailableTenants } from "./lib/hooks/useAuth";
 import { TenantSelectionDialog } from "./components/tenant-selection-dialog";
 import { TenantInitializer } from "./components/tenant-initializer";
+import { ModalManager } from "./components/modal-manager";
 import { Toaster } from "sonner";
 import "./app.css";
 
@@ -146,6 +147,7 @@ export default function App() {
     <QueryProvider>
       <SessionProvider>
         <AuthenticatedApp />
+        <ModalManager />
         <Toaster position="top-right" richColors />
       </SessionProvider>
     </QueryProvider>

@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import {
   Card,
   CardContent,
@@ -36,19 +39,66 @@ import { UserStatus } from "~/types";
 import { TenantLink } from "~/components/tenant-link";
 import { useTenantNavigation } from "~/lib/hooks/useNavigation";
 import { PermissionsSelector } from "~/components/permissions-selector";
+import { toast } from "sonner";
+
+// Form validation schema
+const updateUserSchema = z
+  .object({
+    firstName: z.string().min(1, "First name is required"),
+    lastName: z.string().min(1, "Last name is required"),
+    email: z.string().email("Invalid email address"),
+    phone: z.string().optional(),
+    status: z.nativeEnum(UserStatus),
+    password: z.string().optional(),
+    confirmPassword: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      // Only validate password confirmation if password is provided
+      if (data.password && data.password.length > 0) {
+        if (data.password.length < 8) {
+          return false;
+        }
+        if (data.password !== data.confirmPassword) {
+          return false;
+        }
+      }
+      return true;
+    },
+    {
+      message:
+        "Password must be at least 8 characters and passwords must match",
+      path: ["password"],
+    }
+  );
+
+type UpdateUserFormData = z.infer<typeof updateUserSchema>;
 
 const EditUser = () => {
   const { navigate } = useTenantNavigation();
   const { id } = useParams();
-  const [formData, setFormData] = useState<UpdateUserRequest>({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    status: UserStatus.ACTIVE,
-    password: "",
-    confirmPassword: "",
+
+  // Initialize form with react-hook-form
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<UpdateUserFormData>({
+    resolver: zodResolver(updateUserSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      status: UserStatus.ACTIVE,
+      password: "",
+      confirmPassword: "",
+    },
   });
+
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
   const [showPasswordFields, setShowPasswordFields] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -68,7 +118,7 @@ const EditUser = () => {
   // Pre-fill form when user data loads
   useEffect(() => {
     if (user) {
-      setFormData({
+      reset({
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
@@ -78,7 +128,7 @@ const EditUser = () => {
         confirmPassword: "",
       });
     }
-  }, [user]);
+  }, [user, reset]);
 
   // Load user permissions from permissions array
   useEffect(() => {
@@ -86,50 +136,35 @@ const EditUser = () => {
     setSelectedPermissions(permissionNames);
   }, [user]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const onSubmit = async (data: UpdateUserFormData) => {
     if (!id) return;
 
-    // Validate password fields if they are filled
-    if (showPasswordFields && (formData.password || formData.confirmPassword)) {
-      if (formData.password !== formData.confirmPassword) {
-        alert("Passwords do not match");
-        return;
-      }
-      if (formData.password && formData.password.length < 6) {
-        alert("Password must be at least 6 characters long");
-        return;
-      }
-    }
-
     try {
-      // Create update data, only include password if it's being updated
+      // Prepare update data
       const updateData: UpdateUserRequest = {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        phone: formData.phone,
-        status: formData.status,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        phone: data.phone,
+        status: data.status,
       };
 
-      // Only include password if it's being updated
-      if (showPasswordFields && formData.password) {
-        updateData.password = formData.password;
+      // Only include password if it's provided
+      if (showPasswordFields && data.password) {
+        updateData.password = data.password;
       }
 
-      await updateUserMutation.mutateAsync({ id, data: updateData });
+      await updateUserMutation.mutateAsync({
+        id,
+        data: updateData,
+      });
+
+      toast.success("User updated successfully!");
       navigate("/users");
     } catch (error) {
-      // Error is handled by the mutation
+      console.error("Error updating user:", error);
+      toast.error("Failed to update user. Please try again.");
     }
-  };
-
-  const handleInputChange = (field: keyof UpdateUserRequest, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
   };
 
   const handleStatusChange = async (newStatus: UserStatus) => {
@@ -140,7 +175,7 @@ const EditUser = () => {
         id,
         data: { status: newStatus },
       });
-      setFormData((prev) => ({ ...prev, status: newStatus }));
+      setValue("status", newStatus);
     } catch (error) {
       // Error is handled by the mutation
     }
@@ -253,7 +288,7 @@ const EditUser = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="firstName">
@@ -262,25 +297,27 @@ const EditUser = () => {
                     </Label>
                     <Input
                       id="firstName"
-                      value={formData.firstName}
-                      onChange={(e) =>
-                        handleInputChange("firstName", e.target.value)
-                      }
+                      {...register("firstName")}
                       placeholder="John"
-                      required
                     />
+                    {errors.firstName && (
+                      <p className="text-sm text-destructive">
+                        {errors.firstName.message}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="lastName">Last Name</Label>
                     <Input
                       id="lastName"
-                      value={formData.lastName}
-                      onChange={(e) =>
-                        handleInputChange("lastName", e.target.value)
-                      }
+                      {...register("lastName")}
                       placeholder="Doe"
-                      required
                     />
+                    {errors.lastName && (
+                      <p className="text-sm text-destructive">
+                        {errors.lastName.message}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -292,11 +329,14 @@ const EditUser = () => {
                   <Input
                     id="email"
                     type="email"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange("email", e.target.value)}
+                    {...register("email")}
                     placeholder="john.doe@example.com"
-                    required
                   />
+                  {errors.email && (
+                    <p className="text-sm text-destructive">
+                      {errors.email.message}
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -307,10 +347,14 @@ const EditUser = () => {
                   <Input
                     id="phone"
                     type="tel"
-                    value={formData.phone}
-                    onChange={(e) => handleInputChange("phone", e.target.value)}
+                    {...register("phone")}
                     placeholder="+1 (555) 123-4567"
                   />
+                  {errors.phone && (
+                    <p className="text-sm text-destructive">
+                      {errors.phone.message}
+                    </p>
+                  )}
                 </div>
 
                 {/* Password Update Section */}
@@ -338,10 +382,7 @@ const EditUser = () => {
                           <Input
                             id="password"
                             type={showPassword ? "text" : "password"}
-                            value={formData.password}
-                            onChange={(e) =>
-                              handleInputChange("password", e.target.value)
-                            }
+                            {...register("password")}
                             placeholder="Enter new password"
                             className="pr-10"
                           />
@@ -369,13 +410,7 @@ const EditUser = () => {
                           <Input
                             id="confirmPassword"
                             type={showConfirmPassword ? "text" : "password"}
-                            value={formData.confirmPassword}
-                            onChange={(e) =>
-                              handleInputChange(
-                                "confirmPassword",
-                                e.target.value
-                              )
-                            }
+                            {...register("confirmPassword")}
                             placeholder="Confirm new password"
                             className="pr-10"
                           />
@@ -398,9 +433,20 @@ const EditUser = () => {
                       </div>
 
                       <div className="text-sm text-muted-foreground">
-                        <p>• Password must be at least 6 characters long</p>
+                        <p>• Password must be at least 8 characters long</p>
                         <p>• Leave blank to keep current password</p>
                       </div>
+
+                      {errors.password && (
+                        <p className="text-sm text-destructive">
+                          {errors.password.message}
+                        </p>
+                      )}
+                      {errors.confirmPassword && (
+                        <p className="text-sm text-destructive">
+                          {errors.confirmPassword.message}
+                        </p>
+                      )}
                     </div>
                   )}
                 </div>
@@ -408,10 +454,10 @@ const EditUser = () => {
                 <div className="flex items-center space-x-4 pt-4">
                   <Button
                     type="submit"
-                    disabled={updateUserMutation.isPending}
+                    disabled={isSubmitting || updateUserMutation.isPending}
                     className="min-w-[120px]"
                   >
-                    {updateUserMutation.isPending
+                    {isSubmitting || updateUserMutation.isPending
                       ? "Updating..."
                       : "Update User"}
                   </Button>

@@ -42,68 +42,51 @@ export function PlanCard({
   showTrialInfo = true,
   className = "",
 }: PlanCardProps) {
-  const {
-    price,
-    savings,
-    isCurrent,
-    canUpgrade,
-    canDowngrade,
-    actionType,
-    Icon,
-  } = getPlanComparisonData(plan, currentPlan as any, selectedCycle);
+  const { price, savings, isCurrent, Icon } = getPlanComparisonData(
+    plan,
+    currentPlan as any,
+    selectedCycle
+  );
 
   const formattedFeatures = getFormattedPlanFeatures(plan);
 
   const getButtonText = () => {
     if (isLoading) return "Processing...";
 
-    switch (actionType) {
-      case "current":
-        return "✓ Current Plan";
-      case "upgrade":
-        return `Upgrade to ${plan.name}`;
-      case "downgrade":
-        return `Downgrade to ${plan.name}`;
-      default:
-        return "Contact Sales";
+    if (isCurrent) {
+      return "✓ Current Plan";
     }
+
+    return `Upgrade to ${plan.name}`;
   };
 
   const getButtonVariant = () => {
-    switch (actionType) {
-      case "current":
-        return "outline" as const;
-      case "upgrade":
-        return plan.isPopular ? ("default" as const) : ("secondary" as const);
-      case "downgrade":
-        return "outline" as const;
-      default:
-        return "outline" as const;
+    if (isCurrent) {
+      return "outline" as const;
     }
+
+    return plan.isPopular ? ("default" as const) : ("secondary" as const);
   };
 
   const getButtonClassName = () => {
     const baseClasses = "w-full";
 
-    switch (actionType) {
-      case "current":
-        return `${baseClasses} border-primary text-primary bg-primary/5`;
-      case "upgrade":
-        return plan.isPopular
-          ? `${baseClasses} bg-primary hover:bg-primary/90`
-          : `${baseClasses} bg-secondary hover:bg-secondary/80 text-secondary-foreground`;
-      default:
-        return baseClasses;
+    if (isCurrent) {
+      return `${baseClasses} border-primary text-primary bg-primary/5`;
     }
+
+    return plan.isPopular
+      ? `${baseClasses} bg-primary hover:bg-primary/90`
+      : `${baseClasses} bg-secondary hover:bg-secondary/80 text-secondary-foreground`;
   };
 
-  const cardClassName = `relative transition-all duration-200 hover:shadow-lg ${
-    plan.isPopular ? "border-primary shadow-md scale-105" : "border-border"
+  const cardClassName = `relative transition-all duration-200 hover:shadow-lg w-full ${
+    plan.isPopular ? "border-primary shadow-md  mt-2" : "border-border mt-2"
   } ${isCurrent ? "ring-2 ring-primary bg-primary/5" : ""} ${className}`;
 
   return (
-    <Card className={cardClassName}>
-      {plan.isPopular && (
+    <Card className={`${cardClassName} flex flex-col h-full`}>
+      {!!plan.isPopular && (
         <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 z-10">
           <Badge className="bg-primary text-primary-foreground px-3 py-1 text-xs font-medium">
             Most Popular
@@ -141,7 +124,7 @@ export function PlanCard({
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 flex-1 flex flex-col">
         {/* Plan Limits */}
         {variant !== "compact" && (
           <>
@@ -196,7 +179,7 @@ export function PlanCard({
         )}
 
         {/* Key Features */}
-        <div className="space-y-2">
+        <div className="space-y-2 flex-1">
           {variant === "detailed" && (
             <h4 className="text-sm font-medium text-foreground mb-3">
               What's included:
@@ -249,14 +232,12 @@ export function PlanCard({
         </div>
 
         {/* Action Button */}
-        <div className="pt-4">
+        <div className="pt-4 mt-auto">
           <Button
             variant={getButtonVariant()}
             className={getButtonClassName()}
             onClick={() => onPlanSelect(plan.slug)}
-            disabled={
-              isLoading || actionType === "current" || actionType === "contact"
-            }
+            disabled={isLoading || isCurrent}
           >
             {getButtonText()}
           </Button>

@@ -87,9 +87,25 @@ const Users = () => {
     {
       id: "roles",
       header: "Roles",
-      cell: (user) => (
-        <TableCells.Count count={user.roles?.length || 0} label="role" />
-      ),
+      cell: (user) => {
+        if (!user.roles || user.roles.length === 0) {
+          return <TableCells.Text>No roles</TableCells.Text>;
+        }
+
+        return (
+          <div className="flex flex-wrap gap-1">
+            {user.roles.map((role, index) => (
+              <Badge
+                key={role.id || index}
+                variant="secondary"
+                className="text-xs"
+              >
+                {role.displayName || role.name}
+              </Badge>
+            ))}
+          </div>
+        );
+      },
     },
     {
       id: "created",

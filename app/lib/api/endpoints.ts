@@ -76,7 +76,7 @@ export const ENDPOINTS = {
 
   // Tenant-scoped endpoints
   BILLING: {
-    CURRENT: "/admin/billing/current",
+    CURRENT: "/admin/my-billing",
   },
 
   // Public pricing plans endpoints (no auth required)
