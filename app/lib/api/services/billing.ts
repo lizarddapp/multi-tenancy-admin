@@ -96,8 +96,8 @@ export const billingService = {
   },
 
   // Get current tenant's billing
-  getCurrent: async (): Promise<ApiResponse<{ data: Billing }>> => {
-    return api.get<{ data: Billing }>(ENDPOINTS.BILLING.CURRENT);
+  getCurrent: async (): Promise<ApiResponse<Billing>> => {
+    return api.get<Billing>(ENDPOINTS.BILLING.CURRENT);
   },
 
   // Get expiring trials

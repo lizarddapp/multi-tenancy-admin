@@ -21,10 +21,13 @@ import {
   XCircle,
 } from "lucide-react";
 import { UpgradePlanDialog } from "./upgrade-plan-dialog";
-import { PaymentMethodCard } from "./payment-method-card";
 import { PricingPlansSection } from "./pricing-plans-section";
 import { useState } from "react";
+import { stripeService } from "~/lib/api/services/stripe";
+import { toast } from "sonner";
+import { ExternalLink } from "lucide-react";
 
+// Updated: Removed PaymentMethodCard and added Stripe customer portal integration
 // Helper function to safely parse billing features
 const parseBillingFeatures = (
   features: string | string[] | undefined
@@ -48,8 +51,36 @@ const parseBillingFeatures = (
 };
 
 export function BillingDashboard() {
-  const { data: billingResponse, isLoading, error } = useCurrentBilling();
+  // Force reload - removed PaymentMethodCard, added Stripe customer portal
+  const {
+    data: billingResponse,
+    isLoading,
+    error,
+    refetch,
+  } = useCurrentBilling();
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
+  const [isLoadingPortal, setIsLoadingPortal] = useState(false);
+
+  // Handle manage billing redirect to Stripe customer portal
+  const handleManageBilling = async () => {
+    try {
+      setIsLoadingPortal(true);
+      const { url } = await stripeService.createPortalSession();
+      window.open(url, "_blank");
+    } catch (error) {
+      console.error("Failed to create portal session:", error);
+      toast.error("Failed to open billing portal. Please try again.");
+    } finally {
+      setIsLoadingPortal(false);
+    }
+  };
+
+  // Handle successful plan upgrade
+  const handleUpgradeSuccess = (plan: BillingPlan, cycle: BillingCycle) => {
+    // Refetch billing data to show updated information
+    refetch();
+    toast.success(`Successfully upgraded to ${plan} plan!`);
+  };
 
   if (isLoading) {
     return (
@@ -65,7 +96,7 @@ export function BillingDashboard() {
   }
 
   // Handle no billing setup (null data) differently from other errors
-  if (!error && billingResponse?.data && !billingResponse.data.data) {
+  if (!error && billingResponse && !billingResponse.data) {
     return (
       <div className="space-y-6">
         <div>
@@ -93,19 +124,12 @@ export function BillingDashboard() {
           </CardContent>
         </Card>
 
-        <PricingPlansSection
-          currentPlan={BillingPlan.FREE}
-          currentCycle={BillingCycle.MONTHLY}
-          onPlanSelect={(_plan, _cycle) => {
-            setShowUpgradeDialog(true);
-          }}
-        />
-
         <UpgradePlanDialog
           open={showUpgradeDialog}
           onOpenChange={setShowUpgradeDialog}
           currentPlan={BillingPlan.FREE}
           currentCycle={BillingCycle.MONTHLY}
+          onUpgradeSuccess={handleUpgradeSuccess}
         />
       </div>
     );
@@ -126,7 +150,7 @@ export function BillingDashboard() {
     );
   }
 
-  const billing = billingResponse?.data?.data;
+  const billing = billingResponse?.data;
 
   // If no billing data after successful response, this shouldn't happen
   // but we'll handle it gracefully
@@ -289,25 +313,6 @@ export function BillingDashboard() {
             </p>
           </CardContent>
         </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Payment Method
-            </CardTitle>
-            <CreditCard className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {billing.stripeCustomerId ? "•••• 4242" : "None"}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {billing.stripeCustomerId
-                ? "Visa ending in 4242"
-                : "No payment method"}
-            </p>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Usage and Limits */}
@@ -369,8 +374,38 @@ export function BillingDashboard() {
         </Card>
       </div>
 
-      {/* Payment Method Management */}
-      <PaymentMethodCard billing={billing} />
+      {/* Billing Management */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Billing Management</CardTitle>
+          <CardDescription>
+            View invoices, update payment methods, and manage your subscription
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button
+            onClick={handleManageBilling}
+            disabled={isLoadingPortal}
+            className="w-full sm:w-auto"
+          >
+            {isLoadingPortal ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                Opening...
+              </>
+            ) : (
+              <>
+                <ExternalLink className="h-4 w-4 mr-2" />
+                Manage Billing
+              </>
+            )}
+          </Button>
+          <p className="text-sm text-muted-foreground mt-2">
+            You'll be redirected to Stripe's secure portal to manage your
+            subscription, payment methods, and view invoices.
+          </p>
+        </CardContent>
+      </Card>
 
       {/* Features */}
       <Card>
@@ -415,6 +450,7 @@ export function BillingDashboard() {
         onOpenChange={setShowUpgradeDialog}
         currentPlan={billing.plan}
         currentCycle={billing.cycle}
+        onUpgradeSuccess={handleUpgradeSuccess}
       />
     </div>
   );

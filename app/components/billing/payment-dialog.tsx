@@ -15,6 +15,7 @@ interface PaymentDialogProps {
   plan: BillingPlan;
   cycle: BillingCycle;
   price?: number; // Price in cents
+  priceId: string; // Stripe price ID
   onPaymentSuccess: (plan: BillingPlan, cycle: BillingCycle) => void;
   isLoading?: boolean;
 }
@@ -25,6 +26,7 @@ export function PaymentDialog({
   plan,
   cycle,
   price,
+  priceId,
   onPaymentSuccess,
   isLoading = false,
 }: PaymentDialogProps) {
@@ -58,6 +60,7 @@ export function PaymentDialog({
               plan={plan}
               cycle={cycle}
               price={price}
+              priceId={priceId}
               onPaymentSuccess={handlePaymentSuccess}
               onCancel={handleCancel}
               isLoading={isLoading}

@@ -30,6 +30,8 @@ export interface PricingPlan {
   limits: PlanLimits;
   trialDays: number;
   yearlySavings: number;
+  stripePriceIdMonthly: string | null;
+  stripePriceIdYearly: string | null;
   createdAt: string;
   updatedAt: string;
 }

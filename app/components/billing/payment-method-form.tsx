@@ -9,11 +9,15 @@ import { Badge } from "~/components/ui/badge";
 import { Loader2, CreditCard, Check } from "lucide-react";
 import { toast } from "sonner";
 import { BillingPlan, BillingCycle } from "~/types";
+import { stripeService } from "~/lib/api/services/stripe";
+import { useAuth } from "~/lib/hooks/useAuth";
+import { formatCurrency } from "~/lib/utils";
 
 interface PaymentMethodFormProps {
   plan: BillingPlan;
   cycle: BillingCycle;
   price?: number; // Price in cents
+  priceId: string; // Stripe price ID
   onPaymentSuccess: (plan: BillingPlan, cycle: BillingCycle) => void;
   onCancel: () => void;
   isLoading?: boolean;
@@ -23,12 +27,14 @@ export function PaymentMethodForm({
   plan,
   cycle,
   price,
+  priceId,
   onPaymentSuccess,
   onCancel,
   isLoading = false,
 }: PaymentMethodFormProps) {
   const stripe = useStripe();
   const elements = useElements();
+  const { user } = useAuth();
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cardholderName, setCardholderName] = useState("");
@@ -56,35 +62,46 @@ export function PaymentMethodForm({
     setIsProcessing(true);
 
     try {
-      // Create payment method
-      const { error: stripeError, paymentMethod } =
-        await stripe.createPaymentMethod({
-          type: "card",
-          card: cardElement,
-          billing_details: {
-            name: cardholderName,
-          },
+      // Validate that we have a price ID
+      if (!priceId) {
+        setError("Price ID is missing. Please try again or contact support.");
+        return;
+      }
+
+      // Create subscription with backend
+      const { subscriptionId, clientSecret } =
+        await stripeService.createSubscription({
+          priceId,
+          customerEmail: user?.email || "",
+          customerName: cardholderName,
         });
 
-      if (stripeError) {
-        setError(
-          stripeError.message || "An error occurred while processing your card."
-        );
+      // Confirm subscription payment with Stripe
+      const { error: confirmError } = await stripe.confirmCardPayment(
+        clientSecret,
+        {
+          payment_method: {
+            card: cardElement,
+            billing_details: {
+              name: cardholderName,
+              email: user?.email,
+            },
+          },
+        }
+      );
+
+      if (confirmError) {
+        setError(confirmError.message || "Payment failed. Please try again.");
         return;
       }
-
-      if (!paymentMethod) {
-        setError("Failed to create payment method. Please try again.");
-        return;
-      }
-
-      // Simulate payment processing
-      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       // Call success callback
       onPaymentSuccess(plan, cycle);
 
-      toast.success("Payment processed successfully!");
+      toast.success("Subscription created successfully!");
+
+      // Log subscription ID for debugging
+      console.log("Subscription created:", subscriptionId);
 
       // Reset form
       setCardholderName("");
@@ -213,7 +230,7 @@ export function PaymentMethodForm({
           ) : (
             <>
               <CreditCard className="h-4 w-4 mr-2" />
-              Subscribe Now
+              Start Subscription
             </>
           )}
         </Button>
