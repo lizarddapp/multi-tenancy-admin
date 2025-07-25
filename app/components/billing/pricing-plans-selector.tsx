@@ -138,27 +138,7 @@ export function PricingPlansSelector({
   };
 
   return (
-    <div className={`space-y-${compact ? '4' : '8'}`}>
-      {/* Page Header */}
-      {!compact && (
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold">{title}</h1>
-          <p className="text-muted-foreground">{description}</p>
-        </div>
-      )}
-
-      {/* Current Billing Status */}
-      {showCurrentStatus && currentBilling && (
-        <Alert>
-          <CheckCircle className="h-4 w-4" />
-          <AlertDescription>
-            Current Plan: <strong>{currentBilling.plan}</strong> (
-            {currentBilling.cycle})
-            {currentBilling.status && ` - Status: ${currentBilling.status}`}
-          </AlertDescription>
-        </Alert>
-      )}
-
+    <div className={`space-y-${compact ? "4" : "8"}`}>
       {/* Login Prompt */}
       {showLoginPrompt && !isAuthenticated && (
         <Alert>
@@ -174,9 +154,7 @@ export function PricingPlansSelector({
 
       {/* Pricing Plans Selection */}
       <PricingPlansSection
-        currentPlan={
-          selectedPlan?.plan || currentBilling?.plan || BillingPlan.FREE
-        }
+        currentPlan={currentBilling?.plan || BillingPlan.FREE}
         currentCycle={selectedCycle}
         onPlanSelect={handlePlanSelect}
       />

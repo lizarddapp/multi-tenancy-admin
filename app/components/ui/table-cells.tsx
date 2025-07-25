@@ -18,7 +18,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "~/components/ui/alert-dialog";
-import { MoreHorizontal, Edit, Trash2 } from "lucide-react";
+import { MoreHorizontal, Eye, Trash2 } from "lucide-react";
 import { TenantLink } from "~/components/tenant-link";
 
 // Common table cell components
@@ -86,8 +86,8 @@ export const TableCells = {
         {editHref && (
           <DropdownMenuItem asChild>
             <TenantLink to={editHref}>
-              <Edit className="mr-2 h-4 w-4" />
-              Edit
+              <Eye className="mr-2 h-4 w-4" />
+              View
             </TenantLink>
           </DropdownMenuItem>
         )}

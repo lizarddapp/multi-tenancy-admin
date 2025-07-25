@@ -11,10 +11,10 @@ export interface PlanFeature {
 }
 
 export interface PlanLimits {
-  maxUsers: number | null;
-  maxStorage: number | null;
-  maxApiCalls: number | null;
-  maxProjects: number | null;
+  maxCustomers: number | null;
+  maxLocations: number | null;
+  maxCampaigns: number | null;
+  maxRewards: number | null;
 }
 
 export interface PricingPlan {

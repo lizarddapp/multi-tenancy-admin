@@ -20,12 +20,13 @@ import {
   CheckCircle,
   XCircle,
 } from "lucide-react";
-import { UpgradePlanDialog } from "./upgrade-plan-dialog";
-import { PricingPlansSection } from "./pricing-plans-section";
+
 import { useState } from "react";
 import { stripeService } from "~/lib/api/services/stripe";
 import { toast } from "sonner";
 import { ExternalLink } from "lucide-react";
+import { useNavigate } from "react-router";
+import { useTenantNavigation } from "~/lib/hooks/useNavigation";
 
 // Updated: Removed PaymentMethodCard and added Stripe customer portal integration
 // Helper function to safely parse billing features
@@ -60,6 +61,7 @@ export function BillingDashboard() {
   } = useCurrentBilling();
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const [isLoadingPortal, setIsLoadingPortal] = useState(false);
+  const { navigate } = useTenantNavigation();
 
   // Handle manage billing redirect to Stripe customer portal
   const handleManageBilling = async () => {
@@ -123,14 +125,6 @@ export function BillingDashboard() {
             </div>
           </CardContent>
         </Card>
-
-        <UpgradePlanDialog
-          open={showUpgradeDialog}
-          onOpenChange={setShowUpgradeDialog}
-          currentPlan={BillingPlan.FREE}
-          currentCycle={BillingCycle.MONTHLY}
-          onUpgradeSuccess={handleUpgradeSuccess}
-        />
       </div>
     );
   }
@@ -234,7 +228,7 @@ export function BillingDashboard() {
             Manage your subscription, billing, and usage
           </p>
         </div>
-        <Button onClick={() => setShowUpgradeDialog(true)}>
+        <Button onClick={() => navigate("/pricing")}>
           <Star className="h-4 w-4 mr-2" />
           Upgrade Plan
         </Button>
@@ -433,25 +427,6 @@ export function BillingDashboard() {
           </div>
         </CardContent>
       </Card>
-
-      {/* Available Pricing Plans */}
-      <PricingPlansSection
-        currentPlan={billing.plan}
-        currentCycle={billing.cycle}
-        onPlanSelect={(_plan, _cycle) => {
-          // Close any existing dialog and show upgrade dialog with selected plan
-          setShowUpgradeDialog(true);
-        }}
-      />
-
-      {/* Upgrade Dialog */}
-      <UpgradePlanDialog
-        open={showUpgradeDialog}
-        onOpenChange={setShowUpgradeDialog}
-        currentPlan={billing.plan}
-        currentCycle={billing.cycle}
-        onUpgradeSuccess={handleUpgradeSuccess}
-      />
     </div>
   );
 }

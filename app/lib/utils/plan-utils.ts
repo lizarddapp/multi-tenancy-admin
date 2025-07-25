@@ -1,16 +1,5 @@
-import { Star, Zap, Crown } from "lucide-react";
 import { BillingPlan, BillingCycle } from "~/types";
 import type { PricingPlan } from "~/lib/api/services/pricing-plans";
-
-/**
- * Plan icons mapping
- */
-export const planIcons = {
-  free: Star,
-  basic: Zap,
-  pro: Crown,
-  enterprise: Crown,
-} as const;
 
 /**
  * Plan order for comparison (lower number = lower tier)
@@ -64,32 +53,14 @@ export function canUpgradeToPlan(
 }
 
 /**
- * Check if user can downgrade to a plan
- */
-export function canDowngradeToPlan(
-  planSlug: BillingPlan,
-  currentPlan: BillingPlan
-): boolean {
-  return planOrder[planSlug] < planOrder[currentPlan];
-}
-
-/**
- * Get the plan icon component
- */
-export function getPlanIcon(planSlug: BillingPlan) {
-  return planIcons[planSlug as keyof typeof planIcons] || Star;
-}
-
-/**
- * Get plan action type (current, upgrade, downgrade, contact)
+ * Get plan action type (current, upgrade, contact)
  */
 export function getPlanActionType(
   planSlug: BillingPlan,
   currentPlan: BillingPlan
-): "current" | "upgrade" | "downgrade" | "contact" {
+): "current" | "upgrade" | "contact" {
   if (isCurrentPlan(planSlug, currentPlan)) return "current";
   if (canUpgradeToPlan(planSlug, currentPlan)) return "upgrade";
-  if (canDowngradeToPlan(planSlug, currentPlan)) return "downgrade";
   return "contact";
 }
 
@@ -105,18 +76,14 @@ export function getPlanComparisonData(
   const savings = getPlanSavings(plan, selectedCycle);
   const isCurrent = isCurrentPlan(plan.slug, currentPlan);
   const canUpgrade = canUpgradeToPlan(plan.slug, currentPlan);
-  const canDowngrade = canDowngradeToPlan(plan.slug, currentPlan);
   const actionType = getPlanActionType(plan.slug, currentPlan);
-  const Icon = getPlanIcon(plan.slug);
 
   return {
     price,
     savings,
     isCurrent,
     canUpgrade,
-    canDowngrade,
     actionType,
-    Icon,
   };
 }
 

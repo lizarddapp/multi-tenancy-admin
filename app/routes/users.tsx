@@ -1,12 +1,8 @@
 import React, { useState } from "react";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
-import { Plus, Shield, UserPlus } from "lucide-react";
-import {
-  useUsers,
-  useDeleteUser,
-  useUpdateUserStatus,
-} from "~/lib/hooks/useUsers";
+import { Plus, UserPlus } from "lucide-react";
+import { useUsers, useDeleteUser } from "~/lib/hooks/useUsers";
 import type { User as UserType, UserStatus } from "~/types";
 import { UserStatus as UserStatusEnum } from "~/types";
 import { DataTable } from "~/components/ui/data-table";
@@ -40,19 +36,10 @@ const Users = () => {
 
   // Mutations
   const deleteUserMutation = useDeleteUser();
-  const updateUserStatusMutation = useUpdateUserStatus();
 
   const handleDeleteUser = async (id: string) => {
     try {
       await deleteUserMutation.mutateAsync(id);
-    } catch (error) {
-      // Error is handled by the mutation
-    }
-  };
-
-  const handleUpdateUserStatus = async (id: string, status: UserStatus) => {
-    try {
-      await updateUserStatusMutation.mutateAsync({ id, data: { status } });
     } catch (error) {
       // Error is handled by the mutation
     }
@@ -121,35 +108,8 @@ const Users = () => {
           editHref={`/users/${user.id}`}
           onDelete={() => handleDeleteUser(user.id.toString())}
           deleteTitle="Delete User"
-          deleteDescription={`Are you sure you want to delete "${user.fullName}"? This action cannot be undone and will remove all user data.`}
-          additionalActions={[
-            ...(user.status === UserStatusEnum.ACTIVE
-              ? [
-                  {
-                    label: "Suspend",
-                    icon: Shield,
-                    onClick: () =>
-                      handleUpdateUserStatus(
-                        user.id.toString(),
-                        UserStatusEnum.SUSPENDED
-                      ),
-                  },
-                ]
-              : []),
-            ...(user.status === UserStatusEnum.SUSPENDED
-              ? [
-                  {
-                    label: "Activate",
-                    icon: Shield,
-                    onClick: () =>
-                      handleUpdateUserStatus(
-                        user.id.toString(),
-                        UserStatusEnum.ACTIVE
-                      ),
-                  },
-                ]
-              : []),
-          ]}
+          deleteDescription={`Are you sure you want to remove "${user.fullName}" from this tenant? This action will remove their access to this tenant but will not delete their account.`}
+          additionalActions={[]}
         />
       ),
     },

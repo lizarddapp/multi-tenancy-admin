@@ -12,7 +12,15 @@ import {
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { ArrowLeft, Mail, Shield, UserPlus } from "lucide-react";
+import { Checkbox } from "~/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+import { ArrowLeft, Mail, Shield, UserPlus, Crown } from "lucide-react";
 import { useInviteUser } from "~/lib/hooks/useUsers";
 import { useRoles } from "~/lib/hooks/useRoles";
 import { TenantLink } from "~/components/tenant-link";
@@ -21,11 +29,23 @@ import { PermissionsSelector } from "~/components/permissions-selector";
 import type { Permission, InviteUserRequest } from "~/types";
 
 // Form validation schema based on the backend inviteUserValidator
-const inviteUserSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  roleId: z.number().min(1, "Role is required"),
-  permissions: z.array(z.string()).optional(),
-});
+const inviteUserSchema = z
+  .object({
+    email: z.string().email("Invalid email address"),
+    roleId: z.number().optional(),
+    permissions: z.array(z.string()).optional(),
+    isTenantOwner: z.boolean().optional(),
+  })
+  .refine(
+    (data) => {
+      // Either roleId or isTenantOwner must be selected
+      return data.roleId || data.isTenantOwner;
+    },
+    {
+      message: "Please select a role or tenant owner",
+      path: ["roleId"],
+    }
+  );
 
 type InviteUserFormData = z.infer<typeof inviteUserSchema>;
 
@@ -44,8 +64,9 @@ const InviteUser = () => {
     resolver: zodResolver(inviteUserSchema),
     defaultValues: {
       email: "",
-      roleId: 0,
+      roleId: undefined,
       permissions: [],
+      isTenantOwner: false,
     },
   });
 
@@ -56,16 +77,44 @@ const InviteUser = () => {
   const inviteUserMutation = useInviteUser();
   const { data: rolesResponse, isLoading: rolesLoading } = useRoles();
 
-  const roles = rolesResponse?.data?.data || [];
+  const allRoles = rolesResponse?.data?.data || [];
+
+  // Filter out tenant_owner from regular roles
+  const roles = allRoles.filter((role) => role.name !== "tenant_owner");
+
+  // Watch form values
+  const watchedIsTenantOwner = watch("isTenantOwner");
+
+  // Check if selected role is tenant_owner or tenant owner checkbox is checked
+  const selectedRole = roles.find((role) => role.id === selectedRoleId);
+  const isTenantOwnerRole =
+    watchedIsTenantOwner || selectedRole?.name === "tenant_owner";
 
   const onSubmit = async (data: InviteUserFormData) => {
     try {
+      // Determine the role ID to use
+      let roleId: number;
+
+      if (data.isTenantOwner) {
+        // Find tenant_owner role
+        const tenantOwnerRole = allRoles.find(
+          (role) => role.name === "tenant_owner"
+        );
+        if (!tenantOwnerRole) {
+          throw new Error("Tenant owner role not found");
+        }
+        roleId = tenantOwnerRole.id;
+      } else if (data.roleId) {
+        roleId = data.roleId;
+      } else {
+        throw new Error("No role selected");
+      }
+
       // Transform form data to match API expectations
       const inviteUserData: InviteUserRequest = {
         email: data.email,
-        roleId: data.roleId,
-        permissions:
-          selectedPermissions.length > 0 ? selectedPermissions : undefined,
+        roleId: roleId,
+        permissions: data.isTenantOwner ? [] : selectedPermissions,
       };
 
       await inviteUserMutation.mutateAsync(inviteUserData);
@@ -144,58 +193,102 @@ const InviteUser = () => {
               )}
             </div>
 
-            {/* Role Selection */}
+            {/* Tenant Owner Checkbox */}
             <div className="space-y-2">
-              <Label htmlFor="roleId">
-                <Shield className="inline h-4 w-4 mr-2" />
-                Role
-              </Label>
-              {rolesLoading ? (
-                <div className="flex h-9 w-full max-w-md rounded-md border border-input bg-transparent px-3 py-1 text-sm items-center">
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent mr-2" />
-                  Loading roles...
-                </div>
-              ) : (
-                <select
-                  id="roleId"
-                  {...register("roleId", {
-                    setValueAs: (value) => parseInt(value),
-                  })}
-                  className="flex h-9 w-full max-w-md rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <option value={0}>Select a role</option>
-                  {roles.map((role) => (
-                    <option key={role.id} value={role.id}>
-                      {role.displayName}
-                    </option>
-                  ))}
-                </select>
-              )}
-              {errors.roleId && (
-                <p className="text-sm text-destructive">
-                  {errors.roleId.message}
-                </p>
-              )}
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="isTenantOwner"
+                  {...register("isTenantOwner")}
+                  checked={watchedIsTenantOwner}
+                  onCheckedChange={(checked) => {
+                    setValue("isTenantOwner", checked as boolean);
+                    if (checked) {
+                      setValue("roleId", undefined);
+                    }
+                  }}
+                />
+                <Label htmlFor="isTenantOwner" className="flex items-center">
+                  <Crown className="inline h-4 w-4 mr-2 text-yellow-600" />
+                  Tenant Owner
+                </Label>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Tenant owners have full access to all features and settings
+              </p>
             </div>
+
+            {/* Role Selection */}
+            {!watchedIsTenantOwner && (
+              <div className="space-y-2">
+                <Label htmlFor="roleId">
+                  <Shield className="inline h-4 w-4 mr-2" />
+                  Role
+                </Label>
+                {rolesLoading ? (
+                  <div className="flex h-9 w-full max-w-md rounded-md border border-input bg-transparent px-3 py-1 text-sm items-center">
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent mr-2" />
+                    Loading roles...
+                  </div>
+                ) : (
+                  <Select
+                    value={selectedRoleId?.toString() || ""}
+                    onValueChange={(value) => {
+                      setValue("roleId", parseInt(value));
+                    }}
+                  >
+                    <SelectTrigger className="w-full max-w-md">
+                      <SelectValue placeholder="Select a role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {roles.map((role) => (
+                        <SelectItem key={role.id} value={role.id.toString()}>
+                          {role.displayName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+                {errors.roleId && (
+                  <p className="text-sm text-destructive">
+                    {errors.roleId.message}
+                  </p>
+                )}
+              </div>
+            )}
 
             {/* Permissions Selection */}
-            <div className="space-y-4">
-              <div>
-                <Label className="text-base font-semibold">
-                  Additional Permissions (Optional)
-                </Label>
-                <p className="text-sm text-muted-foreground">
-                  Select additional permissions beyond what the role provides
-                </p>
-              </div>
+            {!isTenantOwnerRole && (
+              <div className="space-y-4">
+                <div>
+                  <Label className="text-base font-semibold">
+                    Additional Permissions (Optional)
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    Select additional permissions beyond what the role provides
+                  </p>
+                </div>
 
-              <PermissionsSelector
-                selectedPermissions={selectedPermissions}
-                onPermissionChange={handlePermissionChange}
-                onGroupToggle={handleGroupToggle}
-                isLoading={isSubmitting}
-              />
-            </div>
+                <PermissionsSelector
+                  selectedPermissions={selectedPermissions}
+                  onPermissionChange={handlePermissionChange}
+                  onGroupToggle={handleGroupToggle}
+                  isLoading={isSubmitting}
+                />
+              </div>
+            )}
+
+            {/* Show message for tenant owner role */}
+            {isTenantOwnerRole && (
+              <div className="space-y-4">
+                <div>
+                  <Label className="text-base font-semibold">Permissions</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Tenant owners receive all permissions through their role. No
+                    additional permissions need to be selected.
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* Action Buttons */}
             <div className="flex items-center space-x-4 pt-4">

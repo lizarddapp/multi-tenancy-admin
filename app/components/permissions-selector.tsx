@@ -69,8 +69,8 @@ function PermissionGroupComponent({
   const IconComponent = getResourceIcon(group.resource);
 
   return (
-    <div className="space-y-4 p-6 border rounded-lg bg-muted/30">
-      <div className="flex items-center space-x-4">
+    <div className="space-y-2 pb-3 border-b border-border/30 last:border-b-0 last:pb-0">
+      <div className="flex items-center space-x-3 py-0.5">
         <Checkbox
           id={`group-${group.resource}`}
           checked={allSelected}
@@ -83,24 +83,24 @@ function PermissionGroupComponent({
             onGroupToggle(group.permissions, checked as boolean)
           }
         />
-        <div className="flex items-center space-x-3">
-          <IconComponent className="h-5 w-5 text-muted-foreground" />
+        <div className="flex items-center space-x-2">
+          <IconComponent className="h-4 w-4 text-muted-foreground" />
           <Label
             htmlFor={`group-${group.resource}`}
-            className="text-base font-semibold"
+            className="text-sm font-medium"
           >
             {group.displayName}
           </Label>
         </div>
-        <Badge variant="outline" className="text-sm px-3 py-1">
+        <Badge variant="secondary" className="text-xs px-2 py-0.5">
           {selectedInGroup.length}/{groupPermissionNames.length}
         </Badge>
       </div>
-      <div className="ml-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="ml-6 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-0.5">
         {group.permissions.map((permission) => (
           <div
             key={permission.id}
-            className="flex items-start space-x-3 p-3 rounded-lg border bg-background hover:bg-muted/50 transition-colors"
+            className="flex items-start space-x-2 py-1.5 hover:bg-muted/30 rounded px-2 transition-colors"
           >
             <Checkbox
               id={`permission-${permission.id}`}
@@ -108,17 +108,17 @@ function PermissionGroupComponent({
               onCheckedChange={(checked) =>
                 onPermissionChange(permission.name, checked as boolean)
               }
-              className="mt-1"
+              className="mt-0.5 flex-shrink-0"
             />
             <div className="flex-1 min-w-0">
               <Label
                 htmlFor={`permission-${permission.id}`}
-                className="text-sm font-medium cursor-pointer block"
+                className="text-sm cursor-pointer block leading-tight"
               >
                 {permission.action}
               </Label>
               {permission.description && (
-                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                <p className="text-xs text-muted-foreground leading-tight mt-0.5">
                   {permission.description}
                 </p>
               )}
@@ -178,25 +178,23 @@ export function PermissionsSelector({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <Label className="text-base font-semibold">
+        <Label className="text-sm font-medium">
           Permissions ({totalSelected}/{totalPermissions} selected)
         </Label>
-        <div className="flex items-center space-x-2">
-          <div className="relative">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search permissions..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 h-9 w-64 text-sm"
-            />
-          </div>
+        <div className="relative">
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search permissions..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 h-9 w-48 text-sm"
+          />
         </div>
       </div>
 
-      <div className="space-y-6 pr-2">
+      <div className="space-y-2">
         {filteredGroups.length > 0 ? (
           filteredGroups.map((group) => (
             <PermissionGroupComponent
@@ -208,11 +206,11 @@ export function PermissionsSelector({
             />
           ))
         ) : (
-          <div className="text-center py-12 text-muted-foreground">
-            <Shield className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p className="text-base font-medium">No permissions found</p>
+          <div className="text-center py-6 text-muted-foreground">
+            <Shield className="h-6 w-6 mx-auto mb-2 opacity-50" />
+            <p className="text-sm font-medium">No permissions found</p>
             {searchTerm && (
-              <p className="text-sm mt-2">Try adjusting your search terms</p>
+              <p className="text-xs mt-1">Try adjusting your search terms</p>
             )}
           </div>
         )}

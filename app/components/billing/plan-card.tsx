@@ -8,7 +8,7 @@ import {
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
-import { Check, Users, HardDrive, Code, FolderOpen } from "lucide-react";
+import { Check, Users, MapPin, Mail, Gift } from "lucide-react";
 import { BillingCycle } from "~/types";
 import type {
   PricingPlan,
@@ -42,7 +42,7 @@ export function PlanCard({
   showTrialInfo = true,
   className = "",
 }: PlanCardProps) {
-  const { price, savings, isCurrent, Icon } = getPlanComparisonData(
+  const { price, savings, isCurrent } = getPlanComparisonData(
     plan,
     currentPlan as any,
     selectedCycle
@@ -95,12 +95,6 @@ export function PlanCard({
       )}
 
       <CardHeader className="text-center pb-4">
-        <div className="flex justify-center mb-3">
-          <div className="p-3 rounded-full bg-primary/10">
-            <Icon className="h-6 w-6 text-primary" />
-          </div>
-        </div>
-
         <CardTitle className="text-xl font-semibold mb-2">
           {plan.name}
         </CardTitle>
@@ -132,43 +126,43 @@ export function PlanCard({
               <div className="flex items-center justify-between text-sm">
                 <div className="flex items-center gap-2">
                   <Users className="h-4 w-4 text-primary" />
-                  <span className="font-medium">Users</span>
+                  <span className="font-medium">Customers</span>
                 </div>
                 <span className="text-muted-foreground">
-                  {formatPlanLimit(plan.limits.maxUsers)}
+                  {formatPlanLimit(plan.limits.maxCustomers)}
                 </span>
               </div>
 
               <div className="flex items-center justify-between text-sm">
                 <div className="flex items-center gap-2">
-                  <HardDrive className="h-4 w-4 text-primary" />
-                  <span className="font-medium">Storage</span>
+                  <MapPin className="h-4 w-4 text-primary" />
+                  <span className="font-medium">Locations</span>
                 </div>
                 <span className="text-muted-foreground">
-                  {formatPlanLimit(plan.limits.maxStorage, "GB")}
+                  {formatPlanLimit(plan.limits.maxLocations)}
                 </span>
               </div>
 
-              {plan.limits.maxApiCalls && (
+              {plan.limits.maxCampaigns && (
                 <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
-                    <Code className="h-4 w-4 text-primary" />
-                    <span className="font-medium">API Calls</span>
+                    <Mail className="h-4 w-4 text-primary" />
+                    <span className="font-medium">Campaigns</span>
                   </div>
                   <span className="text-muted-foreground">
-                    {formatPlanLimit(plan.limits.maxApiCalls)}/mo
+                    {formatPlanLimit(plan.limits.maxCampaigns)}/mo
                   </span>
                 </div>
               )}
 
-              {plan.limits.maxProjects && (
+              {plan.limits.maxRewards && (
                 <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
-                    <FolderOpen className="h-4 w-4 text-primary" />
-                    <span className="font-medium">Projects</span>
+                    <Gift className="h-4 w-4 text-primary" />
+                    <span className="font-medium">Rewards</span>
                   </div>
                   <span className="text-muted-foreground">
-                    {formatPlanLimit(plan.limits.maxProjects)}
+                    {formatPlanLimit(plan.limits.maxRewards)}
                   </span>
                 </div>
               )}
