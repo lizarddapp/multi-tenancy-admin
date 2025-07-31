@@ -12,7 +12,7 @@ interface UpgradeBannerProps {
 
 export function UpgradeBanner({ className }: UpgradeBannerProps) {
   const { data: billingData, isLoading: billingLoading } = useCurrentBilling();
-  const billing = billingData?.data?.data;
+  const billing = billingData?.data;
 
   // Don't show banner if loading
   if (billingLoading) {
@@ -45,7 +45,7 @@ export function UpgradeBanner({ className }: UpgradeBannerProps) {
                 Set up your billing to start using advanced features.
               </p>
               <div className="flex space-x-2">
-                <TenantLink to="/test-pricing">
+                <TenantLink to="/pricing">
                   <Button
                     size="sm"
                     className="h-7 text-xs bg-blue-600 hover:bg-blue-700"
@@ -153,7 +153,7 @@ export function UpgradeBanner({ className }: UpgradeBannerProps) {
             </div>
             <p className="text-xs text-gray-600 mb-3">{content.description}</p>
             <div className="flex space-x-2">
-              <TenantLink to="/test-pricing">
+              <TenantLink to="/pricing">
                 <Button
                   size="sm"
                   className="h-7 text-xs bg-amber-600 hover:bg-amber-700"

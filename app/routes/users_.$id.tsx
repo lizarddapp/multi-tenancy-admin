@@ -15,7 +15,6 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Badge } from "~/components/ui/badge";
 import {
-  ArrowLeft,
   User,
   Mail,
   Phone,
@@ -40,6 +39,7 @@ import type { UpdateUserRequest } from "~/types";
 import { UserStatus } from "~/types";
 import { TenantLink } from "~/components/tenant-link";
 import { useTenantNavigation } from "~/lib/hooks/useNavigation";
+import { PageHeader } from "~/components/page-header";
 import { PermissionsSelector } from "~/components/permissions-selector";
 import { toast } from "sonner";
 
@@ -280,26 +280,19 @@ const EditUser = () => {
 
   return (
     <div className="flex-1 space-y-4">
-      <div className="flex items-center space-x-4">
-        <TenantLink to="/users">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-        </TenantLink>
-        <div className="flex-1">
-          <h2 className="text-3xl font-bold tracking-tight">
-            {isOwnProfile ? "My Profile" : "User Management"}
-          </h2>
-          <p className="text-muted-foreground">
-            {isOwnProfile
-              ? "Manage your personal information and settings"
-              : "Manage user roles and permissions"}
-          </p>
-        </div>
-        <div className="flex items-center space-x-2">
-          {getUserStatusBadge(user.status)}
-        </div>
-      </div>
+      <PageHeader
+        title={isOwnProfile ? "My Profile" : "User Management"}
+        description={
+          isOwnProfile
+            ? "Manage your personal information and settings"
+            : "Manage user roles and permissions"
+        }
+        backTo={{
+          path: "/users",
+          label: "Back to Users",
+        }}
+        actions={getUserStatusBadge(user.status)}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* User Information Form */}

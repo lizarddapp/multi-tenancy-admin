@@ -6,9 +6,4 @@ import devtoolsJson from "vite-plugin-devtools-json";
 
 export default defineConfig({
   plugins: [tailwindcss(), reactRouter(), tsconfigPaths(), devtoolsJson()],
-  define: {
-    "import.meta.env.STRIPE_PUBLISHABLE_KEY": JSON.stringify(
-      process.env.STRIPE_PUBLISHABLE_KEY
-    ),
-  },
 });

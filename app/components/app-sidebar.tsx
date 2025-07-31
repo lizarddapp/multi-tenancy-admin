@@ -108,7 +108,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const needsUpgrade = React.useMemo(() => {
     if (!currentTenant || billingLoading) return false;
 
-    const billing = billingData?.data?.data;
+    const billing = billingData?.data;
 
     // No billing record means needs setup
     if (!billing) return true;

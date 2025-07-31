@@ -1,6 +1,5 @@
 import type { MetaFunction } from "react-router";
 import { BillingDashboard } from "~/components/billing/billing-dashboard";
-import { StripeProvider } from "~/lib/providers/StripeProvider";
 import { useCurrentBilling } from "~/lib/hooks/useBilling";
 import { useEffect } from "react";
 
@@ -20,15 +19,12 @@ export default function BillingPage() {
       isLoading,
       error,
       billingResponse,
-      billingData: billingResponse?.data?.data,
     });
   }, [billingResponse, isLoading, error]);
 
   return (
-    <StripeProvider>
-      <div className="container mx-auto py-6">
-        <BillingDashboard />
-      </div>
-    </StripeProvider>
+    <div className="container mx-auto py-6">
+      <BillingDashboard />
+    </div>
   );
 }

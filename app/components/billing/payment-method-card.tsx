@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -9,7 +8,6 @@ import {
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
 import { CreditCard, Plus, Trash2 } from "lucide-react";
-import { AddPaymentMethodDialog } from "./add-payment-method-dialog";
 import type { Billing } from "~/types";
 
 interface PaymentMethodCardProps {
@@ -17,8 +15,6 @@ interface PaymentMethodCardProps {
 }
 
 export function PaymentMethodCard({ billing }: PaymentMethodCardProps) {
-  const [showAddPaymentDialog, setShowAddPaymentDialog] = useState(false);
-
   const hasPaymentMethod = !!billing.stripeCustomerId;
 
   return (
@@ -57,7 +53,7 @@ export function PaymentMethodCard({ billing }: PaymentMethodCardProps) {
               <p className="text-muted-foreground mb-4">
                 No payment method added
               </p>
-              <Button onClick={() => setShowAddPaymentDialog(true)}>
+              <Button disabled>
                 <Plus className="h-4 w-4 mr-2" />
                 Add Payment Method
               </Button>
@@ -65,23 +61,13 @@ export function PaymentMethodCard({ billing }: PaymentMethodCardProps) {
           )}
 
           {hasPaymentMethod && (
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={() => setShowAddPaymentDialog(true)}
-            >
+            <Button variant="outline" className="w-full" disabled>
               <Plus className="h-4 w-4 mr-2" />
               Add Another Payment Method
             </Button>
           )}
         </CardContent>
       </Card>
-
-      <AddPaymentMethodDialog
-        open={showAddPaymentDialog}
-        onOpenChange={setShowAddPaymentDialog}
-        billing={billing}
-      />
     </>
   );
 }

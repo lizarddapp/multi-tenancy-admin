@@ -7,7 +7,6 @@ import {
 } from "~/components/ui/dialog";
 import { BillingPlan, BillingCycle } from "~/types";
 import { PricingPlansSelector } from "./pricing-plans-selector";
-import { StripeProvider } from "~/lib/providers/StripeProvider";
 import { toast } from "sonner";
 
 interface UpgradePlanDialogProps {
@@ -36,16 +35,14 @@ export function UpgradePlanDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
-        <StripeProvider>
-          <PricingPlansSelector
-            showCurrentStatus={false}
-            showLoginPrompt={false}
-            onPlanSuccess={handlePlanSuccess}
-            title=""
-            description=""
-            compact={true}
-          />
-        </StripeProvider>
+        <PricingPlansSelector
+          showCurrentStatus={false}
+          showLoginPrompt={false}
+          onPlanSuccess={handlePlanSuccess}
+          title=""
+          description=""
+          compact={true}
+        />
       </DialogContent>
     </Dialog>
   );

@@ -1,5 +1,4 @@
 import type { MetaFunction } from "react-router";
-import { StripeProvider } from "~/lib/providers/StripeProvider";
 import { PricingPlansSelector } from "~/components/billing/pricing-plans-selector";
 import { BillingPlan, BillingCycle } from "~/types";
 import { toast } from "sonner";
@@ -18,16 +17,14 @@ export default function TestPricingPage() {
   };
 
   return (
-    <StripeProvider>
-      <div className="container mx-auto py-6">
-        <PricingPlansSelector
-          showCurrentStatus={true}
-          showLoginPrompt={true}
-          onPlanSuccess={handlePlanSuccess}
-          title="Pricing Plans API Test"
-          description="Test the pricing plans API integration with Stripe subscriptions"
-        />
-      </div>
-    </StripeProvider>
+    <div className="container mx-auto py-6">
+      <PricingPlansSelector
+        showCurrentStatus={true}
+        showLoginPrompt={true}
+        onPlanSuccess={handlePlanSuccess}
+        title="Pricing Plans API Test"
+        description="Test the pricing plans API integration with Stripe subscriptions"
+      />
+    </div>
   );
 }

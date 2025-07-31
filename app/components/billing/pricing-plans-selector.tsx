@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { Alert, AlertDescription } from "~/components/ui/alert";
-import { CheckCircle } from "lucide-react";
 import { useAuth } from "~/lib/hooks/useAuth";
 import { useCurrentBilling } from "~/lib/hooks/useBilling";
-import { useTenant } from "~/lib/hooks/useTenant";
 import { BillingPlan, BillingCycle } from "~/types";
 import { toast } from "sonner";
-import { PaymentDialog } from "./payment-dialog";
+import { stripeService } from "~/lib/api/services/stripe";
 import { PricingPlansSection } from "./pricing-plans-section";
+import { SubscriptionUpdateDialog } from "./subscription-update-dialog";
 import { usePricingPlansComparison } from "~/lib/hooks/usePricingPlans";
 
 interface PricingPlansSelectorProps {
@@ -34,107 +33,95 @@ export function PricingPlansSelector({
   compact = false,
 }: PricingPlansSelectorProps) {
   const { isAuthenticated } = useAuth();
-  const { currentTenant } = useTenant();
   const { data: billingResponse } = useCurrentBilling();
 
   const [selectedPlan, setSelectedPlan] = useState<{
     plan: BillingPlan;
     cycle: BillingCycle;
+    priceId: string;
   } | null>(null);
-  const [selectedCycle, setSelectedCycle] = useState<BillingCycle>(
-    BillingCycle.MONTHLY
-  );
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [showUpdateDialog, setShowUpdateDialog] = useState(false);
 
   const currentBilling = billingResponse?.data;
 
   // Get pricing plans data for price calculation
   const { data: plansResponse } = usePricingPlansComparison();
 
-  // Helper function to get price for selected plan
-  const getSelectedPlanPrice = () => {
-    if (!selectedPlan || !(plansResponse as any)?.data) return undefined;
+  // Helper function to get Stripe price ID for a plan
+  const getPlanPriceId = (plan: BillingPlan, cycle: BillingCycle) => {
+    if (!(plansResponse as any)?.data) return "";
 
     const planData = (plansResponse as any).data.find(
-      (p: any) => p.slug === selectedPlan.plan
-    );
-    if (!planData) return undefined;
-
-    return selectedPlan.cycle === "yearly"
-      ? planData.yearlyPrice
-      : planData.monthlyPrice;
-  };
-
-  // Helper function to get Stripe price ID for selected plan
-  const getSelectedPlanPriceId = () => {
-    if (!selectedPlan || !(plansResponse as any)?.data) return "";
-
-    const planData = (plansResponse as any).data.find(
-      (p: any) => p.slug === selectedPlan.plan
+      (p: any) => p.slug === plan
     );
     if (!planData) {
-      console.warn(`Plan data not found for: ${selectedPlan.plan}`);
+      console.warn(`Plan data not found for: ${plan}`);
       return "";
     }
 
     const priceId =
-      selectedPlan.cycle === "yearly"
+      cycle === BillingCycle.YEARLY
         ? planData.stripePriceIdYearly
         : planData.stripePriceIdMonthly;
 
     if (!priceId) {
       console.warn(
-        `Stripe price ID not found for plan: ${selectedPlan.plan}, cycle: ${selectedPlan.cycle}`
+        `Stripe price ID not found for plan: ${plan}, cycle: ${cycle}`
       );
     }
 
     return priceId || "";
   };
 
-  // Handle plan selection from pricing cards - directly open payment dialog
-  const handlePlanSelect = (plan: BillingPlan, cycle: BillingCycle) => {
+  // Handle plan selection from pricing cards
+  const handlePlanSelect = async (plan: BillingPlan, cycle: BillingCycle) => {
     if (!isAuthenticated) {
       toast.error("Please login first to subscribe to a plan");
       return;
     }
 
-    setSelectedPlan({ plan, cycle });
-    setSelectedCycle(cycle);
-    setShowPaymentDialog(true);
-  };
-
-  // Handle successful payment processing
-  const handlePaymentSuccess = async (
-    plan: BillingPlan,
-    cycle: BillingCycle
-  ) => {
-    if (!isAuthenticated || !currentTenant) {
-      toast.error("Please login and select a tenant first");
-      return;
-    }
-
-    setIsProcessing(true);
-
     try {
-      // The payment dialog handles the subscription creation
-      // We just need to show success and call the callback
-      toast.success(`Successfully subscribed to ${plan} plan!`);
+      const priceId = getPlanPriceId(plan, cycle);
+      if (!priceId) {
+        toast.error("Price ID not found for selected plan");
+        return;
+      }
 
-      // Clear selection after successful payment
-      setSelectedPlan(null);
-      setShowPaymentDialog(false);
+      // Check if user has an existing subscription
+      const hasActiveSubscription =
+        currentBilling?.stripeSubscriptionId &&
+        currentBilling?.status === "active";
 
-      // Call the success callback if provided
-      onPlanSuccess?.(plan, cycle);
+      if (hasActiveSubscription) {
+        // Show confirmation dialog for existing subscription update
+        setSelectedPlan({ plan, cycle, priceId });
+        setShowUpdateDialog(true);
+      } else {
+        // Create new subscription via Stripe Checkout
+        const checkoutSession = await stripeService.createCheckoutSession({
+          priceId,
+          successUrl: `${window.location.origin}${window.location.pathname}?success=true`,
+          cancelUrl: `${window.location.origin}${window.location.pathname}?canceled=true`,
+        });
+
+        // Redirect to Stripe Checkout
+        window.location.href = checkoutSession.url;
+      }
     } catch (error: any) {
       console.error("Plan selection failed:", error);
       toast.error(
         error.response?.data?.message || "Failed to process plan selection"
       );
-    } finally {
-      setIsProcessing(false);
     }
+  };
+
+  // Handle successful subscription update
+  const handleUpdateSuccess = () => {
+    setSelectedPlan(null);
+    setShowUpdateDialog(false);
+
+    // Refresh billing data to show updated plan
+    window.location.reload();
   };
 
   return (
@@ -155,21 +142,23 @@ export function PricingPlansSelector({
       {/* Pricing Plans Selection */}
       <PricingPlansSection
         currentPlan={currentBilling?.plan || BillingPlan.FREE}
-        currentCycle={selectedCycle}
+        currentCycle={currentBilling?.cycle || BillingCycle.MONTHLY}
         onPlanSelect={handlePlanSelect}
       />
 
-      {/* Payment Dialog */}
-      {selectedPlan && (
-        <PaymentDialog
-          open={showPaymentDialog}
-          onOpenChange={setShowPaymentDialog}
-          plan={selectedPlan.plan}
-          cycle={selectedPlan.cycle}
-          price={getSelectedPlanPrice()}
-          priceId={getSelectedPlanPriceId()}
-          onPaymentSuccess={handlePaymentSuccess}
-          isLoading={isProcessing}
+      {/* Note: New subscriptions handled via Stripe Checkout, upgrades via confirmation dialog */}
+
+      {/* Subscription Update Confirmation Dialog */}
+      {selectedPlan && currentBilling && (
+        <SubscriptionUpdateDialog
+          open={showUpdateDialog}
+          onOpenChange={setShowUpdateDialog}
+          currentPlan={currentBilling.plan || BillingPlan.FREE}
+          currentCycle={currentBilling.cycle || BillingCycle.MONTHLY}
+          targetPlan={selectedPlan.plan}
+          targetCycle={selectedPlan.cycle}
+          targetPriceId={selectedPlan.priceId}
+          onUpdateSuccess={handleUpdateSuccess}
         />
       )}
     </div>

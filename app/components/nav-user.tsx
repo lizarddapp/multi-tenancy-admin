@@ -52,7 +52,7 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar();
   const { logout } = useSession();
-  const { navigateGlobal } = useTenantNavigation();
+  const { navigate, navigateGlobal } = useTenantNavigation();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
@@ -132,7 +132,10 @@ export function NavUser({
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => navigate("/profile")}
+                className="cursor-pointer"
+              >
                 <BadgeCheck />
                 Account
               </DropdownMenuItem>

@@ -18,6 +18,26 @@ export interface CreateSubscriptionResponse {
   customerId: string;
 }
 
+export interface CreateCheckoutSessionRequest {
+  priceId: string;
+  successUrl: string;
+  cancelUrl: string;
+}
+
+export interface CreateCheckoutSessionResponse {
+  sessionId: string;
+  url: string;
+}
+
+export interface UpdateSubscriptionRequest {
+  priceId: string;
+}
+
+export interface UpdateSubscriptionResponse {
+  subscriptionId: string;
+  status: string;
+}
+
 export interface GetPublishableKeyResponse {
   publishableKey: string;
 }
@@ -35,6 +55,32 @@ class StripeService {
   ): Promise<CreateSubscriptionResponse> {
     const response = await apiClient.post(
       "/admin/stripe/create-subscription",
+      data
+    );
+    return response.data.data;
+  }
+
+  /**
+   * Create Stripe Checkout session for subscription
+   */
+  async createCheckoutSession(
+    data: CreateCheckoutSessionRequest
+  ): Promise<CreateCheckoutSessionResponse> {
+    const response = await apiClient.post(
+      "/admin/stripe/create-checkout-session",
+      data
+    );
+    return response.data.data;
+  }
+
+  /**
+   * Update existing subscription to new plan
+   */
+  async updateSubscription(
+    data: UpdateSubscriptionRequest
+  ): Promise<UpdateSubscriptionResponse> {
+    const response = await apiClient.post(
+      "/admin/stripe/update-subscription",
       data
     );
     return response.data.data;
