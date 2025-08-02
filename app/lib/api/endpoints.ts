@@ -36,17 +36,6 @@ export const ENDPOINTS = {
       PERMISSIONS: "/admin/permissions",
     },
 
-    // User Role Management
-    USER_ROLES: {
-      LIST: (userId: string) => `/admin/users/${userId}/roles`,
-      ASSIGN: (userId: string) => `/admin/users/${userId}/roles`,
-      REMOVE: (userId: string) => `/admin/users/${userId}/roles`,
-      PERMISSIONS: (userId: string) =>
-        `/admin/users/${userId}/roles/permissions`,
-      BULK_ASSIGN: (userId: string) =>
-        `/admin/users/${userId}/roles/bulk-assign`,
-    },
-
     // Tenant Management (Admin)
     TENANTS: {
       LIST: "/admin/tenants",
@@ -100,7 +89,6 @@ export const ENDPOINTS = {
     DELETE: (id: string) => `/admin/users/${id}`,
     UPDATE_STATUS: (id: string) => `/admin/users/${id}/status`,
     INVITE: "/admin/users/invite",
-    BULK_INVITE: "/admin/users/bulk-invite",
     UPDATE_PERMISSIONS: (id: string) => `/admin/users/${id}/permissions`,
   },
 } as const;

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { LayoutDashboard, Users, CreditCard } from "lucide-react";
+import { LayoutDashboard, Settings, Users, CreditCard } from "lucide-react";
 
 import { NavMain } from "~/components/nav-main";
 import { NavUser } from "~/components/nav-user";
@@ -14,7 +14,6 @@ import {
 } from "~/components/ui/sidebar";
 import { useSession } from "~/lib/providers/SessionProvider";
 import { usePermissions, RESOURCES } from "~/lib/hooks/usePermissions";
-import { UserRole } from "~/types";
 import { useCurrentBilling } from "~/lib/hooks/useBilling";
 import { useTenant } from "~/lib/hooks/useTenant";
 
@@ -38,59 +37,36 @@ const getNavData = (
       isActive: true,
     },
 
-    // Users section - visible if user can read users
-    ...(canAccess(RESOURCES.USERS, "read")
+    // Settings section - contains Users and Billing as sub-items
+    ...(canAccess(RESOURCES.USERS, "read") ||
+    canAccess(RESOURCES.BILLING, "read")
       ? [
           {
-            title: "Users",
-            url: "/users",
-            icon: Users,
+            title: "Settings",
+            url: "#",
+            icon: Settings,
             items: [
-              {
-                title: "All Users",
-                url: "/users",
-              },
-              {
-                title: "Admins",
-                url: `/users?role=${UserRole.ADMIN}`,
-              },
-              {
-                title: "Managers",
-                url: `/users?role=${UserRole.MANAGER}`,
-              },
-              {
-                title: "Staff",
-                url: `/users?role=${UserRole.VIEWER}`,
-              },
-            ],
-          },
-        ]
-      : []),
+              // Users sub-menu - visible if user can read users
+              ...(canAccess(RESOURCES.USERS, "read")
+                ? [
+                    {
+                      title: "Users",
+                      url: "/users",
+                      icon: Users,
+                    },
+                  ]
+                : []),
 
-    // Billing section - visible if user can read billing
-    ...(canAccess(RESOURCES.BILLING, "read")
-      ? [
-          {
-            title: "Billing",
-            url: "/billing",
-            icon: CreditCard,
-            items: [
-              {
-                title: "Overview",
-                url: "/billing",
-              },
-              {
-                title: "Invoices",
-                url: "/billing/invoices",
-              },
-              {
-                title: "Payments",
-                url: "/billing/payments",
-              },
-              {
-                title: "Subscriptions",
-                url: "/billing/subscriptions",
-              },
+              // Billing sub-menu - visible if user can read billing
+              ...(canAccess(RESOURCES.BILLING, "read")
+                ? [
+                    {
+                      title: "Billing",
+                      url: "/billing",
+                      icon: CreditCard,
+                    },
+                  ]
+                : []),
             ],
           },
         ]
